@@ -5,7 +5,6 @@ import glob
 import cv2
 import numpy as np
 import pytesseract
-from PIL import Image
 from gtts import gTTS
 from googletrans import Translator
 
@@ -23,49 +22,34 @@ st.set_page_config(
 
 
 # ============================================================
-# VARIABLES
-# ============================================================
-
-text = " "
-
-
-# ============================================================
 # CARPETA DE AUDIO
 # ============================================================
 
-try:
-    os.mkdir("temp")
-except:
-    pass
+os.makedirs("temp", exist_ok=True)
 
 
 # ============================================================
-# LIMPIEZA DE ARCHIVOS
+# LIMPIEZA
 # ============================================================
 
-def remove_files(n):
+def remove_files(days):
 
-    mp3_files = glob.glob("temp/*mp3")
+    files = glob.glob("temp/*.mp3")
 
-    if len(mp3_files) != 0:
+    now = time.time()
 
-        now = time.time()
-        n_days = n * 86400
+    for file in files:
 
-        for f in mp3_files:
+        if os.stat(file).st_mtime < now - (days * 86400):
 
-            if os.stat(f).st_mtime < now - n_days:
-
-                os.remove(f)
-
-                print("Eliminado:", f)
+            os.remove(file)
 
 
 remove_files(7)
 
 
 # ============================================================
-# TRADUCCIÓN + AUDIO
+# TRADUCCIÓN + TTS
 # ============================================================
 
 def text_to_speech(
@@ -75,93 +59,90 @@ def text_to_speech(
     tld
 ):
 
+    translator = Translator()
+
     translation = translator.translate(
         text,
         src=input_language,
         dest=output_language
     )
 
-    trans_text = translation.text
+    translated_text = translation.text
 
     tts = gTTS(
-        trans_text,
+        translated_text,
         lang=output_language,
         tld=tld,
         slow=False
     )
 
-    try:
-
-        my_file_name = text[0:20]
-
-    except:
-
-        my_file_name = "audio"
-
-
-    # Evitar caracteres problemáticos en nombres de archivo
-
-    my_file_name = "".join(
-        c for c in my_file_name
+    filename = "".join(
+        c for c in text[:20]
         if c.isalnum() or c in (" ", "_", "-")
     ).strip()
 
+    if not filename:
+        filename = "audio"
 
-    if not my_file_name:
+    path = f"temp/{filename}.mp3"
 
-        my_file_name = "audio"
+    tts.save(path)
 
-
-    tts.save(
-        f"temp/{my_file_name}.mp3"
-    )
-
-    return my_file_name, trans_text
+    return filename, translated_text
 
 
 # ============================================================
-# ESTILO VISUAL
+# ESTILO
+#
+# IMPORTANTE:
+# Aquí NO se utiliza HTML visible.
+# Solo se inyecta CSS para modificar componentes nativos
+# de Streamlit.
 # ============================================================
 
 st.markdown(
 """
 <style>
 
-/* Fondo general */
+/* ==========================================================
+   FONDO
+   ========================================================== */
 
 .stApp {
 
     background:
         radial-gradient(
             circle at 50% 15%,
-            rgba(86, 61, 125, 0.28),
+            rgba(93, 63, 150, 0.25),
             transparent 25%
         ),
         radial-gradient(
-            circle at 15% 70%,
-            rgba(40, 65, 105, 0.18),
-            transparent 30%
+            circle at 15% 60%,
+            rgba(40, 80, 125, 0.16),
+            transparent 28%
         ),
         radial-gradient(
-            circle at 85% 60%,
-            rgba(100, 45, 95, 0.18),
-            transparent 30%
+            circle at 85% 70%,
+            rgba(115, 45, 105, 0.15),
+            transparent 28%
         ),
         linear-gradient(
             135deg,
             #05040a,
-            #0b0812,
-            #050409
+            #0a0711,
+            #040308
         );
 
 }
 
 
-/* Contenedor */
+/* ==========================================================
+   CONTENEDOR
+   ========================================================== */
 
 .block-container {
 
-    max-width: 1400px;
+    max-width: 1350px;
 
     padding-top: 2rem;
     padding-bottom: 5rem;
@@ -169,7 +150,9 @@ st.markdown(
 }
 
 
-/* Títulos */
+/* ==========================================================
+   TÍTULOS
+   ========================================================== */
 
 h1 {
 
@@ -183,6 +166,8 @@ h1 {
     font-size:
         clamp(3rem, 7vw, 6rem) !important;
 
+    font-weight: 500 !important;
+
     letter-spacing:
         0.12em;
 
@@ -190,8 +175,9 @@ h1 {
         #eee7dc !important;
 
     text-shadow:
-        0 0 10px rgba(190,170,230,0.45),
-        0 0 35px rgba(100,70,170,0.35);
+        0 0 10px rgba(205,185,235,0.45),
+        0 0 35px rgba(100,65,175,0.35),
+        0 0 80px rgba(80,45,150,0.25);
 
 }
 
@@ -210,386 +196,84 @@ h3 {
 }
 
 
-/* Subtítulo */
+/* ==========================================================
+   INSTRUCCIONES
+   ========================================================== */
 
-.mirror-description {
+.instructions {
 
-    text-align: center;
-
-    color: #89818e;
-
-    font-size: 0.75rem;
-
-    letter-spacing: 0.3em;
-
-    text-transform: uppercase;
-
-    margin-bottom: 35px;
-
-}
-
-
-/* ============================================================
-   ESPEJO
-   ============================================================ */
-
-.mirror {
-
-    position: relative;
-
-    min-height: 460px;
-
-    margin: 20px auto 45px auto;
-
-    padding: 65px 45px;
-
-    max-width: 1050px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    align-items: center;
-
-    text-align: center;
-
-    border-radius:
-        48% 48% 43% 43% / 18% 18% 48% 48%;
+    background:
+        rgba(12,9,18,0.72);
 
     border:
-        4px solid rgba(173,150,198,0.48);
+        1px solid rgba(175,150,205,0.18);
 
-    background:
-
-        radial-gradient(
-            ellipse at center,
-            rgba(100,75,155,0.28),
-            rgba(19,14,31,0.96) 50%,
-            rgba(5,4,9,0.99) 78%
-        );
-
-    box-shadow:
-
-        inset 0 0 35px rgba(190,160,255,0.10),
-
-        inset 0 0 100px rgba(80,50,160,0.22),
-
-        0 0 15px rgba(200,180,230,0.20),
-
-        0 0 55px rgba(100,65,180,0.30),
-
-        0 30px 100px rgba(0,0,0,0.75);
-
-    overflow: hidden;
-
-    animation:
-        mirrorBreathing 5s ease-in-out infinite;
-
-}
-
-
-@keyframes mirrorBreathing {
-
-    0%, 100% {
-
-        box-shadow:
-
-            inset 0 0 35px rgba(190,160,255,0.08),
-
-            inset 0 0 100px rgba(80,50,160,0.18),
-
-            0 0 15px rgba(200,180,230,0.18),
-
-            0 0 45px rgba(100,65,180,0.25),
-
-            0 30px 100px rgba(0,0,0,0.75);
-
-    }
-
-    50% {
-
-        box-shadow:
-
-            inset 0 0 50px rgba(200,170,255,0.15),
-
-            inset 0 0 130px rgba(100,65,190,0.25),
-
-            0 0 25px rgba(220,200,245,0.28),
-
-            0 0 75px rgba(120,75,210,0.38),
-
-            0 30px 100px rgba(0,0,0,0.75);
-
-    }
-
-}
-
-
-/* Luz interna */
-
-.mirror::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 500px;
-
-    height: 500px;
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(170,130,255,0.13),
-            transparent 68%
-        );
-
-    animation:
-        mirrorLight 6s ease-in-out infinite;
-
-    pointer-events: none;
-
-}
-
-
-@keyframes mirrorLight {
-
-    0%, 100% {
-
-        transform:
-            scale(0.75);
-
-        opacity:
-            0.4;
-
-    }
-
-    50% {
-
-        transform:
-            scale(1.35);
-
-        opacity:
-            0.9;
-
-    }
-
-}
-
-
-/* Contenido */
-
-.mirror-title {
-
-    position: relative;
-
-    z-index: 2;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size:
-        clamp(0.75rem, 1.5vw, 1rem);
-
-    letter-spacing:
-        0.35em;
-
-    text-transform:
-        uppercase;
-
-    color:
-        #978ba5;
-
-    margin-bottom:
-        25px;
-
-}
-
-
-.mirror-text {
-
-    position: relative;
-
-    z-index: 2;
-
-    max-width: 850px;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size:
-        clamp(1.5rem, 3vw, 2.7rem);
-
-    line-height:
-        1.5;
-
-    color:
-        #eee8df;
-
-    text-shadow:
-        0 0 15px rgba(190,170,240,0.35);
-
-    animation:
-        textReveal 1s ease;
-
-}
-
-
-@keyframes textReveal {
-
-    from {
-
-        opacity: 0;
-
-        transform:
-            translateY(15px);
-
-        filter:
-            blur(10px);
-
-    }
-
-    to {
-
-        opacity: 1;
-
-        transform:
-            translateY(0);
-
-        filter:
-            blur(0);
-
-    }
-
-}
-
-
-/* Estado */
-
-.mirror-status {
-
-    position: relative;
-
-    z-index: 2;
-
-    margin-top: 35px;
-
-    color:
-        #817887;
-
-    font-size:
-        0.65rem;
-
-    letter-spacing:
-        0.22em;
-
-    text-transform:
-        uppercase;
-
-}
-
-
-.mirror-orb {
-
-    display: inline-block;
-
-    width: 8px;
-
-    height: 8px;
-
-    border-radius: 50%;
-
-    margin-right: 10px;
-
-    background:
-        #b394e5;
-
-    box-shadow:
-        0 0 8px #b394e5,
-        0 0 20px rgba(170,120,240,0.8);
-
-    animation:
-        orbPulse 1.4s infinite;
-
-}
-
-
-@keyframes orbPulse {
-
-    0%, 100% {
-
-        transform:
-            scale(0.7);
-
-        opacity:
-            0.5;
-
-    }
-
-    50% {
-
-        transform:
-            scale(1.3);
-
-        opacity:
-            1;
-
-    }
-
-}
-
-
-/* ============================================================
-   PANELES
-   ============================================================ */
-
-[data-testid="stFileUploader"] {
-
-    background:
-        rgba(10,8,15,0.85);
-
-    border:
-        1px solid rgba(180,160,210,0.16);
+    border-left:
+        3px solid rgba(160,125,215,0.65);
 
     padding:
-        18px;
+        22px 26px;
 
-    transition:
-        0.3s ease;
-
-}
-
-
-[data-testid="stFileUploader"]:hover {
-
-    border-color:
-        rgba(165,125,225,0.6);
+    margin:
+        25px 0 40px 0;
 
     box-shadow:
-        0 0 35px rgba(110,70,190,0.15);
+        0 15px 50px rgba(0,0,0,0.25);
 
 }
 
 
-/* ============================================================
+/* ==========================================================
+   TARJETAS DE ENTRADA
+   ========================================================== */
+
+div[data-testid="stVerticalBlockBorderWrapper"] {
+
+    background:
+        rgba(10,8,15,0.72);
+
+    border:
+        1px solid rgba(170,145,205,0.16);
+
+    border-radius:
+        8px;
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+
+}
+
+
+div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+
+    transform:
+        translateY(-5px);
+
+    border-color:
+        rgba(180,145,235,0.55);
+
+    box-shadow:
+        0 15px 45px rgba(80,45,140,0.20);
+
+}
+
+
+/* ==========================================================
    BOTONES
-   ============================================================ */
+   ========================================================== */
 
 .stButton > button {
 
+    width:
+        100%;
+
     min-height:
-        55px;
+        52px;
 
     border-radius:
-        3px;
+        4px;
 
     border:
         1px solid rgba(170,135,215,0.55);
@@ -597,12 +281,12 @@ h3 {
     background:
         linear-gradient(
             135deg,
-            rgba(54,35,75,0.95),
-            rgba(20,15,29,0.98)
+            rgba(55,35,78,0.95),
+            rgba(19,14,29,0.98)
         );
 
     color:
-        #eee7dc;
+        #eee8de;
 
     font-family:
         Georgia,
@@ -610,10 +294,10 @@ h3 {
         serif;
 
     letter-spacing:
-        0.16em;
+        0.12em;
 
     transition:
-        all 0.3s ease;
+        all 0.25s ease;
 
 }
 
@@ -621,36 +305,181 @@ h3 {
 .stButton > button:hover {
 
     transform:
-        translateY(-3px);
+        translateY(-2px);
 
     border-color:
-        rgba(215,190,245,0.9);
+        rgba(215,190,245,0.85);
 
     box-shadow:
-        0 0 25px rgba(150,105,230,0.28),
-        0 0 60px rgba(110,70,190,0.14);
+        0 0 25px rgba(145,100,225,0.25);
 
 }
 
 
-/* ============================================================
-   SELECTORES
-   ============================================================ */
+/* ==========================================================
+   FILE UPLOADER
+   ========================================================== */
 
-div[data-baseweb="select"] > div {
+[data-testid="stFileUploader"] {
 
     background:
-        #0d0a13 !important;
+        rgba(8,7,12,0.55);
 
     border:
-        1px solid rgba(180,160,205,0.18) !important;
+        1px dashed rgba(165,135,205,0.25);
+
+    padding:
+        15px;
 
 }
 
 
-/* ============================================================
+/* ==========================================================
+   CAMERA
+   ========================================================== */
+
+[data-testid="stCameraInput"] {
+
+    background:
+        rgba(8,7,12,0.55);
+
+    border:
+        1px solid rgba(165,135,205,0.18);
+
+    padding:
+        10px;
+
+}
+
+
+/* ==========================================================
+   ESPEJO
+   ========================================================== */
+
+.mirror-space {
+
+    min-height:
+        480px;
+
+    margin:
+        50px auto;
+
+    border-radius:
+        50% 50% 42% 42% / 18% 18% 45% 45%;
+
+    border:
+        4px solid rgba(175,150,205,0.48);
+
+    background:
+
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(135,95,190,0.32),
+            rgba(35,24,55,0.72) 25%,
+            rgba(9,7,15,0.98) 70%
+        );
+
+    box-shadow:
+
+        inset 0 0 50px rgba(180,145,245,0.15),
+
+        inset 0 0 130px rgba(90,55,170,0.28),
+
+        0 0 18px rgba(205,185,225,0.20),
+
+        0 0 70px rgba(110,65,190,0.28),
+
+        0 30px 100px rgba(0,0,0,0.70);
+
+    animation:
+        mirrorMovement 7s ease-in-out infinite;
+
+}
+
+
+@keyframes mirrorMovement {
+
+    0% {
+
+        background-position:
+            50% 50%;
+
+        box-shadow:
+
+            inset 0 0 50px rgba(180,145,245,0.10),
+
+            inset 0 0 130px rgba(90,55,170,0.22),
+
+            0 0 18px rgba(205,185,225,0.18),
+
+            0 0 55px rgba(110,65,190,0.23),
+
+            0 30px 100px rgba(0,0,0,0.70);
+
+    }
+
+    50% {
+
+        background-position:
+            58% 42%;
+
+        box-shadow:
+
+            inset 0 0 70px rgba(195,160,255,0.18),
+
+            inset 0 0 160px rgba(110,70,200,0.32),
+
+            0 0 30px rgba(220,200,245,0.30),
+
+            0 0 100px rgba(120,70,220,0.35),
+
+            0 30px 100px rgba(0,0,0,0.70);
+
+    }
+
+    100% {
+
+        background-position:
+            50% 50%;
+
+        box-shadow:
+
+            inset 0 0 50px rgba(180,145,245,0.10),
+
+            inset 0 0 130px rgba(90,55,170,0.22),
+
+            0 0 18px rgba(205,185,225,0.18),
+
+            0 0 55px rgba(110,65,190,0.23),
+
+            0 30px 100px rgba(0,0,0,0.70);
+
+    }
+
+}
+
+
+/* ==========================================================
+   MÉTRICAS
+   ========================================================== */
+
+[data-testid="stMetric"] {
+
+    background:
+        rgba(12,9,18,0.75);
+
+    border:
+        1px solid rgba(170,145,200,0.15);
+
+    padding:
+        15px;
+
+}
+
+
+/* ==========================================================
    SIDEBAR
-   ============================================================ */
+   ========================================================== */
 
 section[data-testid="stSidebar"] {
 
@@ -664,42 +493,55 @@ section[data-testid="stSidebar"] {
     border-right:
         1px solid rgba(180,160,205,0.12);
 
-    box-shadow:
-        15px 0 70px rgba(0,0,0,0.6);
-
 }
 
 
-/* ============================================================
-   MÉTRICAS
-   ============================================================ */
+/* ==========================================================
+   SELECTORES
+   ========================================================== */
 
-[data-testid="stMetric"] {
+div[data-baseweb="select"] > div {
 
     background:
-        rgba(15,11,22,0.7);
+        #0d0a13 !important;
 
     border:
-        1px solid rgba(170,145,200,0.12);
-
-    padding:
-        15px;
+        1px solid rgba(180,160,205,0.18) !important;
 
 }
 
 
-/* ============================================================
+/* ==========================================================
    AUDIO
-   ============================================================ */
+   ========================================================== */
 
 audio {
 
-    width: 100%;
+    width:
+        100%;
 
-    filter:
-        drop-shadow(
-            0 0 20px rgba(130,90,210,0.25)
-        );
+}
+
+
+/* ==========================================================
+   SEPARADORES
+   ========================================================== */
+
+hr {
+
+    border:
+        none !important;
+
+    height:
+        1px !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(160,120,210,0.45),
+            transparent
+        ) !important;
 
 }
 
@@ -716,71 +558,43 @@ unsafe_allow_html=True
 st.title("ESPEJO MÁGICO")
 
 st.markdown(
-    "RECONOCIMIENTO · DECIFRADO · TRADUCCIÓN · VOZ",
-    unsafe_allow_html=False
+    "RECONOCIMIENTO ÓPTICO · TRADUCCIÓN · SÍNTESIS DE VOZ"
 )
 
 
 # ============================================================
-# INSTRUCCIONES
+# INSTRUCCIONES EXPLÍCITAS
 # ============================================================
 
-with st.expander(
-    "INSTRUCCIONES"
-):
+st.subheader("Cómo utilizar el espejo")
 
-    st.write(
-        """
-        El espejo puede interpretar el texto contenido en una imagen
-        y posteriormente traducirlo a otro idioma.
-
-        1. Selecciona una fuente de imagen.
-           Puedes utilizar la cámara o cargar una imagen desde tu equipo.
-
-        2. Procura que el texto sea nítido, tenga suficiente iluminación
-           y aparezca relativamente recto.
-
-        3. Si utilizas la cámara, puedes activar el filtro de imagen
-           desde el panel lateral.
-
-        4. El espejo analizará la imagen mediante reconocimiento óptico
-           de caracteres y mostrará el texto que consiga identificar.
-
-        5. Selecciona en el panel lateral el idioma del texto original
-           y el idioma al que deseas traducirlo.
-
-        6. Selecciona el acento de la voz cuando corresponda.
-
-        7. Presiona "DECIFRAR Y TRADUCIR".
-
-        8. El resultado aparecerá en el espejo y podrás reproducir
-           la traducción mediante audio.
-        """
-    )
-
-
-# ============================================================
-# ESPEJO INICIAL
-# ============================================================
-
-st.markdown(
+st.info(
     """
-    <div class="mirror">
-        <div class="mirror-title">
-            Estado del espejo
-        </div>
+    **1. Elige una fuente de imagen.**
+    Selecciona una de las dos opciones siguientes: cámara o archivo.
 
-        <div class="mirror-text">
-            Esperando una imagen...
-        </div>
+    **2. Proporciona una imagen que contenga texto.**
+    Procura que el texto esté enfocado, bien iluminado y sea claramente visible.
 
-        <div class="mirror-status">
-            <span class="mirror-orb"></span>
-            Sistema preparado
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
+    **3. El espejo analizará la imagen.**
+    El sistema utilizará reconocimiento óptico de caracteres para identificar
+    las palabras presentes en ella.
+
+    **4. Revisa el texto reconocido.**
+    Si el resultado contiene errores, utiliza una imagen más nítida y vuelve
+    a intentarlo.
+
+    **5. Configura la traducción.**
+    En el panel lateral selecciona el idioma original y el idioma al que
+    quieres traducir el texto.
+
+    **6. Pulsa "DECIFRAR Y TRADUCIR".**
+    El espejo procesará el mensaje y mostrará la traducción.
+
+    **7. Reproduce el resultado.**
+    Una vez terminada la traducción, podrás escucharla mediante el reproductor
+    de audio.
+    """
 )
 
 
@@ -788,35 +602,77 @@ st.markdown(
 # FUENTE DE IMAGEN
 # ============================================================
 
-st.subheader(
-    "Fuente de imagen"
-)
+st.subheader("1. Selecciona la fuente")
 
 
-cam_ = st.checkbox(
-    "Usar cámara"
-)
+camera_col, upload_col = st.columns(2)
 
 
-if cam_:
+# ============================================================
+# CÁMARA
+# ============================================================
 
-    img_file_buffer = st.camera_input(
-        "Toma una fotografía del texto"
-    )
+with camera_col:
 
-else:
+    with st.container(border=True):
 
-    img_file_buffer = None
+        st.markdown("### CÁMARA")
 
+        st.write(
+            "Utiliza la cámara para fotografiar directamente el texto."
+        )
+
+        use_camera = st.checkbox(
+            "Activar cámara",
+            key="camera"
+        )
+
+        if use_camera:
+
+            img_file_buffer = st.camera_input(
+                "Toma una fotografía"
+            )
+
+        else:
+
+            img_file_buffer = None
+
+
+# ============================================================
+# ARCHIVO
+# ============================================================
+
+with upload_col:
+
+    with st.container(border=True):
+
+        st.markdown("### IMAGEN")
+
+        st.write(
+            "Carga una fotografía o imagen que ya tengas en tu equipo."
+        )
+
+        bg_image = st.file_uploader(
+            "Seleccionar imagen",
+            type=[
+                "png",
+                "jpg",
+                "jpeg"
+            ],
+            key="upload"
+        )
+
+
+# ============================================================
+# PROCESAMIENTO
+# ============================================================
 
 with st.sidebar:
 
-    st.subheader(
-        "Procesamiento de imagen"
-    )
+    st.header("Procesamiento")
 
     filtro = st.radio(
-        "Aplicar filtro a la imagen de cámara",
+        "Filtro para la cámara",
         (
             "Sí",
             "No"
@@ -825,35 +681,17 @@ with st.sidebar:
 
 
 # ============================================================
-# CARGAR IMAGEN
+# OCR
 # ============================================================
 
-bg_image = st.file_uploader(
-    "Cargar imagen",
-    type=[
-        "png",
-        "jpg",
-        "jpeg"
-    ]
-)
+text = ""
 
 
-# ============================================================
-# OCR DESDE ARCHIVO
-# ============================================================
+# Archivo
 
 if bg_image is not None:
 
-    uploaded_file = bg_image
-
-    st.image(
-        uploaded_file,
-        caption="Imagen cargada",
-        use_container_width=True
-    )
-
-
-    img_bytes = uploaded_file.getvalue()
+    img_bytes = bg_image.getvalue()
 
     img_cv = cv2.imdecode(
         np.frombuffer(
@@ -863,23 +701,19 @@ if bg_image is not None:
         cv2.IMREAD_COLOR
     )
 
-
     img_rgb = cv2.cvtColor(
         img_cv,
         cv2.COLOR_BGR2RGB
     )
-
 
     text = pytesseract.image_to_string(
         img_rgb
     )
 
 
-# ============================================================
-# OCR DESDE CÁMARA
-# ============================================================
+# Cámara
 
-if img_file_buffer is not None:
+elif img_file_buffer is not None:
 
     bytes_data = img_file_buffer.getvalue()
 
@@ -891,19 +725,16 @@ if img_file_buffer is not None:
         cv2.IMREAD_COLOR
     )
 
-
     if filtro == "Sí":
 
         cv2_img = cv2.bitwise_not(
             cv2_img
         )
 
-
     img_rgb = cv2.cvtColor(
         cv2_img,
         cv2.COLOR_BGR2RGB
     )
-
 
     text = pytesseract.image_to_string(
         img_rgb
@@ -911,68 +742,177 @@ if img_file_buffer is not None:
 
 
 # ============================================================
-# RESULTADO OCR
+# ESPEJO
 # ============================================================
 
-clean_text = text.strip()
+st.subheader("2. El espejo")
 
 
-if clean_text:
+if text.strip():
 
-    safe_text = (
-        clean_text
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-    )
+    mirror_text = text.strip()
 
     st.markdown(
         f"""
-        <div class="mirror">
+        <style>
 
-            <div class="mirror-title">
-                Texto identificado
-            </div>
+        .ocr-result-box {{
+            background:
+                rgba(12,9,20,0.82);
 
-            <div class="mirror-text">
-                {safe_text}
-            </div>
+            border:
+                1px solid rgba(180,150,220,0.25);
 
-            <div class="mirror-status">
-                <span class="mirror-orb"></span>
-                Texto decifrado
-            </div>
+            border-radius:
+                8px;
 
-        </div>
+            padding:
+                30px;
+
+            margin:
+                20px 0;
+
+            box-shadow:
+                0 0 50px rgba(100,60,180,0.15);
+
+            animation:
+                resultAppear 0.8s ease;
+
+        }}
+
+        @keyframes resultAppear {{
+
+            from {{
+                opacity: 0;
+                transform: translateY(20px);
+                filter: blur(8px);
+            }}
+
+            to {{
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }}
+
+        }}
+
+        </style>
         """,
         unsafe_allow_html=True
     )
 
+    st.markdown(
+        "### Texto identificado"
+    )
 
-    col1, col2 = st.columns(2)
+    st.code(
+        mirror_text,
+        language=None
+    )
 
+else:
+
+    st.markdown(
+        """
+        <style>
+
+        .waiting-space {
+            height: 480px;
+
+            border-radius:
+                50% 50% 42% 42% / 18% 18% 45% 45%;
+
+            border:
+                4px solid rgba(175,150,205,0.48);
+
+            background:
+
+                radial-gradient(
+                    circle at 50% 50%,
+                    rgba(115,80,175,0.32),
+                    rgba(30,20,48,0.75) 30%,
+                    rgba(7,5,12,0.99) 72%
+                );
+
+            box-shadow:
+
+                inset 0 0 60px rgba(180,140,245,0.15),
+
+                inset 0 0 150px rgba(85,50,160,0.30),
+
+                0 0 25px rgba(190,165,220,0.20),
+
+                0 0 80px rgba(100,55,180,0.30),
+
+                0 30px 100px rgba(0,0,0,0.75);
+
+            animation:
+                waitingMirror 6s ease-in-out infinite;
+
+        }
+
+        @keyframes waitingMirror {
+
+            0%, 100% {
+
+                transform:
+                    scale(1);
+
+                filter:
+                    brightness(0.9);
+
+            }
+
+            50% {
+
+                transform:
+                    scale(1.015);
+
+                filter:
+                    brightness(1.15);
+
+            }
+
+        }
+
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        "Selecciona una imagen para comenzar."
+    )
+
+
+# ============================================================
+# DATOS OCR
+# ============================================================
+
+if text.strip():
+
+    col1, col2, col3 = st.columns(3)
 
     with col1:
 
         st.metric(
             "Palabras",
-            len(clean_text.split())
+            len(text.split())
         )
-
 
     with col2:
 
         st.metric(
             "Caracteres",
-            len(clean_text)
+            len(text.strip())
         )
 
+    with col3:
 
-else:
-
-    st.info(
-        "El espejo todavía no ha identificado texto."
-    )
+        st.metric(
+            "Estado",
+            "Texto encontrado"
+        )
 
 
 # ============================================================
@@ -982,114 +922,48 @@ else:
 st.markdown("---")
 
 st.subheader(
-    "Traducción"
+    "3. Traducción"
 )
 
 
 with st.sidebar:
 
-    st.markdown("---")
-
-    st.subheader(
+    st.header(
         "Configuración de traducción"
     )
 
 
-    translator = Translator()
+    languages = {
 
+        "Inglés": "en",
+        "Español": "es",
+        "Bengalí": "bn",
+        "Coreano": "ko",
+        "Mandarín": "zh-cn",
+        "Japonés": "ja",
+        "Ruso": "ru",
+        "Alemán": "de"
 
-    # --------------------------------------------------------
-    # IDIOMA DE ENTRADA
-    # --------------------------------------------------------
+    }
+
 
     in_lang = st.selectbox(
-        "Idioma del texto original",
-        (
-            "Inglés",
-            "Español",
-            "Bengalí",
-            "Coreano",
-            "Mandarín",
-            "Japonés",
-            "Ruso",
-            "Alemán"
-        )
+        "Idioma original",
+        list(languages.keys())
     )
 
+    input_language = languages[in_lang]
 
-    input_languages = {
-
-        "Inglés": "en",
-        "Español": "es",
-        "Bengalí": "bn",
-        "Coreano": "ko",
-        "Mandarín": "zh-cn",
-        "Japonés": "ja",
-        "Ruso": "ru",
-        "Alemán": "de"
-
-    }
-
-
-    input_language = input_languages[in_lang]
-
-
-    # --------------------------------------------------------
-    # IDIOMA DE SALIDA
-    # --------------------------------------------------------
 
     out_lang = st.selectbox(
-        "Idioma de traducción",
-        (
-            "Inglés",
-            "Español",
-            "Bengalí",
-            "Coreano",
-            "Mandarín",
-            "Japonés",
-            "Ruso",
-            "Alemán"
-        )
+        "Idioma de destino",
+        list(languages.keys())
     )
 
-
-    output_languages = {
-
-        "Inglés": "en",
-        "Español": "es",
-        "Bengalí": "bn",
-        "Coreano": "ko",
-        "Mandarín": "zh-cn",
-        "Japonés": "ja",
-        "Ruso": "ru",
-        "Alemán": "de"
-
-    }
+    output_language = languages[out_lang]
 
 
-    output_language = output_languages[out_lang]
-
-
-    # --------------------------------------------------------
-    # ACENTO
-    # --------------------------------------------------------
-
-    english_accent = st.selectbox(
-        "Acento de la voz",
-        (
-            "Predeterminado",
-            "India",
-            "Reino Unido",
-            "Estados Unidos",
-            "Canadá",
-            "Australia",
-            "Irlanda",
-            "Sudáfrica"
-        )
-    )
-
-
-    accent_domains = {
+    accents = {
 
         "Predeterminado": "com",
         "India": "co.in",
@@ -1103,106 +977,100 @@ with st.sidebar:
     }
 
 
-    tld = accent_domains[english_accent]
+    accent = st.selectbox(
+        "Acento de voz",
+        list(accents.keys())
+    )
+
+    tld = accents[accent]
 
 
 # ============================================================
-# CONVERSIÓN
+# BOTÓN
 # ============================================================
 
-display_output_text = st.checkbox(
-    "Mostrar también el texto traducido"
+translate = st.button(
+    "DECIFRAR Y TRADUCIR",
+    use_container_width=True
 )
 
 
-if st.button(
-    "DECIFRAR Y TRADUCIR"
-):
+# ============================================================
+# RESULTADO
+# ============================================================
 
-    if not clean_text:
+if translate:
+
+    if not text.strip():
 
         st.warning(
-            "El espejo necesita una imagen que contenga texto antes de poder realizar la traducción."
+            "No se encontró texto. Primero proporciona una imagen."
         )
 
     else:
 
-        result, output_text = text_to_speech(
-            input_language,
-            output_language,
-            text,
-            tld
-        )
+        try:
 
-
-        # ----------------------------------------------------
-        # RESULTADO
-        # ----------------------------------------------------
-
-        safe_output = (
-            output_text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-        )
-
-
-        st.markdown(
-            f"""
-            <div class="mirror">
-
-                <div class="mirror-title">
-                    Traducción completada
-                </div>
-
-                <div class="mirror-text">
-                    {safe_output}
-                </div>
-
-                <div class="mirror-status">
-                    <span class="mirror-orb"></span>
-                    Mensaje traducido
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-        # ----------------------------------------------------
-        # AUDIO
-        # ----------------------------------------------------
-
-        st.subheader(
-            "Voz de la traducción"
-        )
-
-
-        audio_file = open(
-            f"temp/{result}.mp3",
-            "rb"
-        )
-
-
-        audio_bytes = audio_file.read()
-
-
-        st.audio(
-            audio_bytes,
-            format="audio/mp3",
-            start_time=0
-        )
-
-
-        if display_output_text:
-
-            st.markdown("---")
-
-            st.subheader(
-                "Texto traducido"
+            result, output_text = text_to_speech(
+                input_language,
+                output_language,
+                text,
+                tld
             )
 
-            st.write(
-                output_text
+
+            st.subheader(
+                "4. Mensaje descifrado"
+            )
+
+
+            # Texto progresivo
+
+            output_placeholder = st.empty()
+
+            current_text = ""
+
+            for character in output_text:
+
+                current_text += character
+
+                output_placeholder.markdown(
+                    f"### {current_text}"
+                )
+
+                time.sleep(0.015)
+
+
+            st.success(
+                "La traducción ha sido completada."
+            )
+
+
+            # ==================================================
+            # AUDIO
+            # ==================================================
+
+            st.subheader(
+                "5. Escuchar traducción"
+            )
+
+
+            with open(
+                f"temp/{result}.mp3",
+                "rb"
+            ) as audio_file:
+
+                audio_bytes = audio_file.read()
+
+
+            st.audio(
+                audio_bytes,
+                format="audio/mp3"
+            )
+
+
+        except Exception as e:
+
+            st.error(
+                f"No fue posible completar la traducción: {e}"
             )
