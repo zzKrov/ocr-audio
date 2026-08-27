@@ -15,8 +15,8 @@ from googletrans import Translator
 # ============================================================
 
 st.set_page_config(
-    page_title="OCR TRANSLATOR",
-    page_icon="✦",
+    page_title="The Magic Mirror",
+    page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -63,7 +63,7 @@ def text_to_speech(input_language, output_language, text, tld):
 
 
 # ============================================================
-# REMOVE OLD FILES
+# REMOVE OLD AUDIO FILES
 # ============================================================
 
 def remove_files(n):
@@ -73,7 +73,6 @@ def remove_files(n):
     if len(mp3_files) != 0:
 
         now = time.time()
-
         n_days = n * 86400
 
         for f in mp3_files:
@@ -94,240 +93,84 @@ remove_files(7)
 
 
 # ============================================================
-# CSS
+# VISUAL SYSTEM
+#
+# IMPORTANT:
+# The animated mirror is contained inside ONE markdown block.
+# There are no standalone HTML fragments in the Streamlit body.
 # ============================================================
 
 st.markdown("""
 <style>
 
-/* ============================================================
+/* ------------------------------------------------------------
    FONTS
-============================================================ */
+------------------------------------------------------------ */
 
 @import url(
-    'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap'
+    'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap'
 );
 
 
-/* ============================================================
-   GLOBAL
-============================================================ */
+/* ------------------------------------------------------------
+   GLOBAL BACKGROUND
+------------------------------------------------------------ */
 
 .stApp {
 
     background:
         radial-gradient(
-            circle at 10% 15%,
-            rgba(130, 15, 50, 0.24),
-            transparent 27%
-        ),
-
-        radial-gradient(
-            circle at 90% 10%,
-            rgba(80, 25, 120, 0.23),
+            circle at 50% 15%,
+            rgba(75, 42, 120, 0.22),
             transparent 28%
         ),
-
         radial-gradient(
-            circle at 70% 85%,
-            rgba(20, 75, 110, 0.15),
-            transparent 25%
+            circle at 15% 70%,
+            rgba(25, 75, 110, 0.14),
+            transparent 30%
         ),
-
         radial-gradient(
-            circle at 20% 90%,
-            rgba(130, 35, 20, 0.13),
-            transparent 28%
+            circle at 90% 60%,
+            rgba(110, 35, 80, 0.15),
+            transparent 30%
         ),
-
         linear-gradient(
             135deg,
-            #050407,
-            #0b080d 35%,
-            #08070b 70%,
-            #040306
+            #040308,
+            #080611,
+            #05040a
         );
 
-    color: #eee7dc;
-
-    overflow-x: hidden;
+    color: #e8e2d8;
 }
 
 
-/* ============================================================
-   ANIMATED LIGHT FIELD
-============================================================ */
-
-.stApp::before {
-
-    content: "";
-
-    position: fixed;
-
-    width: 800px;
-    height: 800px;
-
-    top: -300px;
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(180, 20, 70, 0.09),
-            transparent 65%
-        );
-
-    filter: blur(50px);
-
-    animation:
-        lightMovement 12s ease-in-out infinite alternate;
-
-    pointer-events: none;
-
-    z-index: 0;
-}
-
-
-@keyframes lightMovement {
-
-    0% {
-        transform:
-            translateX(-55%)
-            scale(0.9);
-    }
-
-    100% {
-        transform:
-            translateX(-45%)
-            scale(1.15);
-    }
-}
-
-
-/* ============================================================
-   PARTICLES
-============================================================ */
-
-.particle {
-
-    position: fixed;
-
-    width: 3px;
-    height: 3px;
-
-    border-radius: 50%;
-
-    background: #c72a51;
-
-    box-shadow:
-        0 0 5px #c72a51,
-        0 0 15px rgba(199,42,81,0.8),
-        0 0 30px rgba(199,42,81,0.3);
-
-    pointer-events: none;
-
-    z-index: 1;
-
-    animation:
-        particleFloat linear infinite;
-}
-
-
-.particle.blue {
-
-    background: #5d9bd3;
-
-    box-shadow:
-        0 0 5px #5d9bd3,
-        0 0 15px rgba(93,155,211,0.7);
-}
-
-
-.particle.white {
-
-    background: #e3ddd2;
-
-    box-shadow:
-        0 0 5px #e3ddd2,
-        0 0 12px rgba(255,255,255,0.5);
-}
-
-
-@keyframes particleFloat {
-
-    0% {
-
-        transform:
-            translateY(110vh)
-            translateX(0)
-            scale(0);
-
-        opacity: 0;
-    }
-
-    10% {
-
-        opacity: 0.8;
-
-        transform:
-            scale(1);
-    }
-
-    35% {
-
-        transform:
-            translateY(70vh)
-            translateX(35px);
-    }
-
-    65% {
-
-        transform:
-            translateY(35vh)
-            translateX(-30px);
-    }
-
-    90% {
-
-        opacity: 0.7;
-    }
-
-    100% {
-
-        transform:
-            translateY(-10vh)
-            translateX(50px)
-            scale(0);
-
-        opacity: 0;
-    }
-}
-
-
-/* ============================================================
-   MAIN
-============================================================ */
+/* ------------------------------------------------------------
+   REMOVE DEFAULT STREAMLIT TOP SPACE
+------------------------------------------------------------ */
 
 .block-container {
 
     max-width: 1350px;
 
-    padding-top: 2.5rem;
-    padding-bottom: 6rem;
-
-    position: relative;
-
-    z-index: 5;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
 }
 
 
-/* ============================================================
-   TITLE
-============================================================ */
+/* ------------------------------------------------------------
+   TYPOGRAPHY
+------------------------------------------------------------ */
+
+html,
+body,
+[class*="css"] {
+
+    font-family:
+        "Inter",
+        sans-serif;
+}
+
 
 h1 {
 
@@ -336,10 +179,10 @@ h1 {
         serif !important;
 
     font-size:
-        clamp(3rem, 7vw, 7rem) !important;
+        clamp(3rem, 7vw, 6.5rem) !important;
 
     font-weight:
-        700 !important;
+        600 !important;
 
     letter-spacing:
         0.12em;
@@ -348,195 +191,166 @@ h1 {
         center;
 
     color:
-        #eee7dc !important;
+        #eee8dd !important;
 
     line-height:
-        0.95 !important;
+        1 !important;
 
     text-shadow:
-
-        0 0 4px rgba(255,255,255,0.5),
-
-        0 0 12px rgba(190,30,70,0.7),
-
-        0 0 35px rgba(130,15,60,0.55),
-
-        0 0 80px rgba(90,20,120,0.35);
-
-    animation:
-        titlePulse 5s ease-in-out infinite;
+        0 0 8px rgba(220,210,255,0.35),
+        0 0 30px rgba(110,75,190,0.35),
+        0 0 70px rgba(70,40,150,0.25);
 }
 
 
-@keyframes titlePulse {
+h2,
+h3 {
 
-    0%, 100% {
+    font-family:
+        "Cinzel",
+        serif !important;
 
-        text-shadow:
-
-            0 0 4px rgba(255,255,255,0.5),
-
-            0 0 12px rgba(190,30,70,0.7),
-
-            0 0 35px rgba(130,15,60,0.55),
-
-            0 0 80px rgba(90,20,120,0.35);
-    }
-
-    50% {
-
-        text-shadow:
-
-            0 0 6px rgba(255,255,255,0.8),
-
-            0 0 20px rgba(220,40,80,0.9),
-
-            0 0 50px rgba(160,20,80,0.7),
-
-            0 0 100px rgba(100,30,150,0.4);
-    }
+    color:
+        #ded7cb !important;
 }
 
 
-.header-subtitle {
+/* ------------------------------------------------------------
+   HEADER
+------------------------------------------------------------ */
+
+.mirror-subtitle {
 
     text-align:
         center;
 
+    color:
+        #827c91;
+
     font-size:
-        0.75rem;
+        0.68rem;
 
     letter-spacing:
-        0.5em;
+        0.42em;
 
     text-transform:
         uppercase;
 
-    color:
-        #8e8780;
-
     margin-top:
-        1rem;
+        0.8rem;
 
     margin-bottom:
-        2.5rem;
+        2rem;
 }
 
 
-/* ============================================================
-   ORNAMENT
-============================================================ */
+.mirror-divider {
 
-.ornament {
+    width:
+        100%;
 
-    display:
-        flex;
+    height:
+        1px;
 
-    align-items:
-        center;
-
-    gap:
-        20px;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(137,105,205,0.65),
+            rgba(220,210,190,0.25),
+            rgba(137,105,205,0.65),
+            transparent
+        );
 
     margin:
         25px 0 35px 0;
 }
 
 
-.ornament-line {
+/* ------------------------------------------------------------
+   MIRROR
+------------------------------------------------------------ */
 
-    height:
-        1px;
-
-    flex:
-        1;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(180,35,65,0.6)
-        );
-}
-
-
-.ornament-line.right {
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(180,35,65,0.6),
-            transparent
-        );
-}
-
-
-.ornament-symbol {
-
-    color:
-        #c12a4d;
-
-    font-size:
-        1.3rem;
-
-    text-shadow:
-        0 0 15px rgba(200,30,70,0.7);
-}
-
-
-/* ============================================================
-   PANELS
-============================================================ */
-
-.panel {
-
-    background:
-
-        linear-gradient(
-            135deg,
-            rgba(22,17,23,0.92),
-            rgba(8,7,11,0.94)
-        );
-
-    border:
-        1px solid rgba(210,200,190,0.10);
-
-    box-shadow:
-
-        0 25px 80px rgba(0,0,0,0.45),
-
-        inset 0 0 40px rgba(150,20,55,0.025);
+.magic-mirror {
 
     position:
         relative;
+
+    width:
+        min(100%, 1050px);
+
+    min-height:
+        470px;
+
+    margin:
+        0 auto 40px auto;
+
+    padding:
+        42px;
+
+    box-sizing:
+        border-box;
+
+    border-radius:
+        48% 48% 45% 45% / 18% 18% 48% 48%;
+
+    background:
+
+        radial-gradient(
+            ellipse at 50% 45%,
+            rgba(93,70,155,0.23),
+            rgba(16,12,30,0.96) 48%,
+            rgba(4,4,9,0.99) 75%
+        );
+
+    border:
+        4px solid rgba(155,130,190,0.55);
+
+    box-shadow:
+
+        inset 0 0 40px rgba(170,130,255,0.10),
+
+        inset 0 0 100px rgba(70,45,140,0.18),
+
+        0 0 12px rgba(190,170,220,0.25),
+
+        0 0 45px rgba(100,60,180,0.25),
+
+        0 35px 100px rgba(0,0,0,0.7);
 
     overflow:
         hidden;
 
     transition:
-        transform 0.4s ease,
-        border-color 0.4s ease,
-        box-shadow 0.4s ease;
+        box-shadow 0.5s ease,
+        transform 0.5s ease;
 }
 
 
-.panel:hover {
+.magic-mirror:hover {
 
     transform:
-        translateY(-4px);
-
-    border-color:
-        rgba(170,35,65,0.28);
+        translateY(-3px);
 
     box-shadow:
 
-        0 30px 90px rgba(0,0,0,0.55),
+        inset 0 0 50px rgba(190,150,255,0.13),
 
-        0 0 40px rgba(120,20,50,0.07);
+        inset 0 0 120px rgba(70,45,140,0.2),
+
+        0 0 20px rgba(210,190,235,0.32),
+
+        0 0 70px rgba(100,60,190,0.32),
+
+        0 40px 120px rgba(0,0,0,0.75);
 }
 
 
-.panel::before {
+/* ------------------------------------------------------------
+   MIRROR INNER FRAME
+------------------------------------------------------------ */
+
+.magic-mirror::before {
 
     content:
         "";
@@ -544,47 +358,420 @@ h1 {
     position:
         absolute;
 
-    top:
-        0;
+    inset:
+        14px;
+
+    border-radius:
+        inherit;
+
+    border:
+        1px solid rgba(220,210,235,0.25);
+
+    box-shadow:
+        inset 0 0 20px rgba(200,180,255,0.08);
+
+    pointer-events:
+        none;
+}
+
+
+/* ------------------------------------------------------------
+   MOVING LIGHT
+------------------------------------------------------------ */
+
+.magic-mirror::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    width:
+        400px;
+
+    height:
+        400px;
 
     left:
+        50%;
+
+    top:
+        50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(180,140,255,0.13),
+            transparent 65%
+        );
+
+    filter:
+        blur(20px);
+
+    animation:
+        mirrorPulse 5s ease-in-out infinite;
+
+    pointer-events:
+        none;
+}
+
+
+@keyframes mirrorPulse {
+
+    0%, 100% {
+        transform:
+            translate(-50%, -50%)
+            scale(0.85);
+
+        opacity:
+            0.45;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.25);
+
+        opacity:
+            0.9;
+    }
+}
+
+
+/* ------------------------------------------------------------
+   PARTICLE FIELD
+------------------------------------------------------------ */
+
+.mirror-particles {
+
+    position:
+        absolute;
+
+    inset:
         0;
 
-    right:
+    pointer-events:
+        none;
+}
+
+
+.mirror-particles span {
+
+    position:
+        absolute;
+
+    width:
+        3px;
+
+    height:
+        3px;
+
+    border-radius:
+        50%;
+
+    background:
+        #cbb9ff;
+
+    box-shadow:
+        0 0 5px #cbb9ff,
+        0 0 15px rgba(170,130,255,0.9),
+        0 0 30px rgba(120,80,220,0.5);
+
+    animation:
+        particleRise var(--duration) linear infinite;
+
+    animation-delay:
+        var(--delay);
+
+    left:
+        var(--left);
+
+    bottom:
+        -10px;
+
+    opacity:
         0;
+}
+
+
+.mirror-particles span:nth-child(3n) {
+
+    background:
+        #e8dfc9;
+
+    box-shadow:
+        0 0 5px #e8dfc9,
+        0 0 18px rgba(240,225,190,0.65);
+}
+
+
+.mirror-particles span:nth-child(4n) {
+
+    width:
+        2px;
 
     height:
         2px;
 
     background:
-        linear-gradient(
-            90deg,
-            transparent,
-            #9d2342,
-            #d03b60,
-            transparent
-        );
+        #7db3d8;
 
-    opacity:
-        0.8;
+    box-shadow:
+        0 0 10px #7db3d8;
 }
 
 
-/* ============================================================
-   SECTION LABEL
-============================================================ */
+@keyframes particleRise {
 
-.section-label {
+    0% {
+
+        transform:
+            translate3d(
+                0,
+                20px,
+                0
+            )
+            scale(0);
+
+        opacity:
+            0;
+    }
+
+    10% {
+
+        opacity:
+            0.9;
+
+        transform:
+            scale(1);
+    }
+
+    40% {
+
+        transform:
+            translate3d(
+                var(--drift),
+                -160px,
+                0
+            )
+            scale(1.15);
+    }
+
+    70% {
+
+        transform:
+            translate3d(
+                calc(var(--drift) * -0.5),
+                -330px,
+                0
+            )
+            scale(0.8);
+    }
+
+    100% {
+
+        transform:
+            translate3d(
+                var(--drift),
+                -550px,
+                0
+            )
+            scale(0);
+
+        opacity:
+            0;
+    }
+}
+
+
+/* ------------------------------------------------------------
+   MIRROR CONTENT
+------------------------------------------------------------ */
+
+.mirror-content {
+
+    position:
+        relative;
+
+    z-index:
+        10;
+
+    min-height:
+        380px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    text-align:
+        center;
+}
+
+
+.mirror-eyebrow {
 
     font-family:
         "Cinzel",
         serif;
 
     font-size:
-        0.72rem;
+        0.65rem;
 
-    font-weight:
-        600;
+    letter-spacing:
+        0.35em;
+
+    text-transform:
+        uppercase;
+
+    color:
+        #988cae;
+
+    margin-bottom:
+        22px;
+}
+
+
+.mirror-message {
+
+    max-width:
+        850px;
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size:
+        clamp(1.4rem, 3vw, 2.5rem);
+
+    line-height:
+        1.55;
+
+    color:
+        #eee8dd;
+
+    text-shadow:
+        0 0 12px rgba(200,180,255,0.3);
+
+    white-space:
+        pre-wrap;
+
+    word-break:
+        break-word;
+
+    animation:
+        messageAppear 0.9s ease both;
+}
+
+
+@keyframes messageAppear {
+
+    from {
+
+        opacity:
+            0;
+
+        transform:
+            translateY(15px);
+
+        filter:
+            blur(8px);
+    }
+
+    to {
+
+        opacity:
+            1;
+
+        transform:
+            translateY(0);
+
+        filter:
+            blur(0);
+    }
+}
+
+
+/* ------------------------------------------------------------
+   DECIPHERING CURSOR
+------------------------------------------------------------ */
+
+.decipher-cursor {
+
+    display:
+        inline-block;
+
+    width:
+        2px;
+
+    height:
+        1.1em;
+
+    margin-left:
+        4px;
+
+    vertical-align:
+        middle;
+
+    background:
+        #c8b4ff;
+
+    box-shadow:
+        0 0 12px #b18cff;
+
+    animation:
+        cursorBlink 0.75s infinite;
+}
+
+
+@keyframes cursorBlink {
+
+    0%, 45% {
+        opacity:
+            1;
+    }
+
+    46%, 100% {
+        opacity:
+            0;
+    }
+}
+
+
+/* ------------------------------------------------------------
+   STATUS
+------------------------------------------------------------ */
+
+.mirror-status {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    margin-top:
+        25px;
+
+    font-size:
+        0.62rem;
 
     letter-spacing:
         0.25em;
@@ -593,235 +780,112 @@ h1 {
         uppercase;
 
     color:
-        #a99f95;
-
-    margin-bottom:
-        0.8rem;
+        #81788d;
 }
 
 
-/* ============================================================
-   CAMERA
-============================================================ */
+.status-orb {
 
-[data-testid="stCameraInput"] {
+    width:
+        7px;
 
-    background:
-        #08070a;
-
-    border:
-        1px solid rgba(210,200,190,0.12);
-
-    padding:
-        15px;
-
-    box-shadow:
-        0 25px 70px rgba(0,0,0,0.45);
-
-    transition:
-        all 0.35s ease;
-}
-
-
-[data-testid="stCameraInput"]:hover {
-
-    border-color:
-        rgba(190,35,65,0.55);
-
-    box-shadow:
-
-        0 30px 90px rgba(0,0,0,0.55),
-
-        0 0 40px rgba(150,20,55,0.12);
-}
-
-
-/* ============================================================
-   CAMERA BUTTON
-============================================================ */
-
-[data-testid="stCameraInput"] button {
-
-    background:
-        linear-gradient(
-            135deg,
-            #161016,
-            #251019
-        ) !important;
-
-    color:
-        #e5ded4 !important;
-
-    border:
-        1px solid rgba(190,35,65,0.45) !important;
+    height:
+        7px;
 
     border-radius:
-        3px !important;
-
-    transition:
-        all 0.25s ease !important;
-}
-
-
-[data-testid="stCameraInput"] button:hover {
+        50%;
 
     background:
-        linear-gradient(
-            135deg,
-            #241019,
-            #3c1221
-        ) !important;
-
-    border-color:
-        #c52b50 !important;
+        #a982e8;
 
     box-shadow:
-        0 0 25px rgba(190,30,65,0.25);
+        0 0 8px #a982e8,
+        0 0 20px rgba(150,100,240,0.7);
 
-    transform:
-        translateY(-2px);
+    animation:
+        orbPulse 1.5s infinite;
 }
 
 
-/* ============================================================
-   FILE UPLOADER
-============================================================ */
+@keyframes orbPulse {
+
+    0%, 100% {
+        transform:
+            scale(0.75);
+
+        opacity:
+            0.55;
+    }
+
+    50% {
+        transform:
+            scale(1.25);
+
+        opacity:
+            1;
+    }
+}
+
+
+/* ------------------------------------------------------------
+   NORMAL STREAMLIT PANELS
+------------------------------------------------------------ */
 
 [data-testid="stFileUploader"] {
 
     background:
-        rgba(14,11,15,0.75);
+        rgba(10,8,16,0.8);
 
     border:
-        1px solid rgba(210,200,190,0.10);
+        1px solid rgba(180,160,210,0.13);
 
     padding:
-        20px;
+        18px;
 
     transition:
-        all 0.3s ease;
+        0.3s ease;
 }
 
 
 [data-testid="stFileUploader"]:hover {
 
     border-color:
-        rgba(180,35,65,0.4);
-
-    background:
-        rgba(25,14,20,0.8);
-}
-
-
-/* ============================================================
-   CHECKBOX
-============================================================ */
-
-[data-testid="stCheckbox"] label {
-
-    color:
-        #aaa29a !important;
-
-    transition:
-        color 0.2s ease;
-}
-
-
-[data-testid="stCheckbox"] label:hover {
-
-    color:
-        #d8d0c5 !important;
-}
-
-
-/* ============================================================
-   SIDEBAR
-============================================================ */
-
-section[data-testid="stSidebar"] {
-
-    background:
-
-        radial-gradient(
-            circle at 50% 0%,
-            rgba(120,20,50,0.13),
-            transparent 35%
-        ),
-
-        linear-gradient(
-            180deg,
-            #070608,
-            #0d090d
-        );
-
-    border-right:
-        1px solid rgba(210,200,190,0.09);
+        rgba(150,110,220,0.5);
 
     box-shadow:
-        15px 0 60px rgba(0,0,0,0.55);
+        0 0 30px rgba(110,70,190,0.10);
 }
 
 
-section[data-testid="stSidebar"] h3 {
-
-    font-family:
-        "Cinzel",
-        serif !important;
-
-    font-size:
-        1.4rem !important;
-
-    letter-spacing:
-        0.08em;
-
-    color:
-        #ddd5ca !important;
-}
-
-
-section[data-testid="stSidebar"] label {
-
-    color:
-        #aaa29a !important;
-}
-
-
-/* ============================================================
-   SELECTBOX
-============================================================ */
-
-div[data-baseweb="select"] > div {
+[data-testid="stCameraInput"] {
 
     background:
-        #0e0b0f !important;
+        rgba(8,7,12,0.85);
 
     border:
-        1px solid rgba(190,180,170,0.15) !important;
+        1px solid rgba(180,160,210,0.15);
 
-    border-radius:
-        3px !important;
-
-    color:
-        #ddd6cc !important;
+    padding:
+        12px;
 
     transition:
-        all 0.25s ease;
+        0.3s ease;
 }
 
 
-div[data-baseweb="select"] > div:hover {
+[data-testid="stCameraInput"]:hover {
 
     border-color:
-        rgba(190,35,65,0.65) !important;
+        rgba(155,120,220,0.55);
 
     box-shadow:
-        0 0 20px rgba(150,20,50,0.1);
+        0 0 35px rgba(100,60,180,0.14);
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    BUTTONS
-============================================================ */
+------------------------------------------------------------ */
 
 .stButton > button {
 
@@ -829,20 +893,19 @@ div[data-baseweb="select"] > div:hover {
         100%;
 
     min-height:
-        52px;
+        55px;
 
     border-radius:
-        3px;
+        4px;
 
     border:
-        1px solid rgba(190,35,65,0.55);
+        1px solid rgba(170,130,225,0.5);
 
     background:
-
         linear-gradient(
             135deg,
-            rgba(80,15,35,0.8),
-            rgba(30,10,20,0.9)
+            rgba(53,31,75,0.9),
+            rgba(20,14,32,0.95)
         );
 
     color:
@@ -853,338 +916,133 @@ div[data-baseweb="select"] > div:hover {
         serif;
 
     font-size:
-        0.75rem;
-
-    font-weight:
-        600;
+        0.72rem;
 
     letter-spacing:
         0.18em;
 
-    box-shadow:
-        0 0 15px rgba(150,20,50,0.08);
-
     transition:
-        all 0.25s cubic-bezier(.2,.8,.2,1);
+        all 0.3s ease;
+
+    box-shadow:
+        0 0 20px rgba(100,60,180,0.08);
 }
 
 
 .stButton > button:hover {
 
     transform:
-        translateY(-4px);
+        translateY(-3px);
 
     border-color:
-        #d13a5d;
+        #c2a2f0;
 
     background:
-
         linear-gradient(
             135deg,
-            rgba(130,20,50,0.9),
-            rgba(55,12,30,0.95)
+            rgba(78,45,110,0.95),
+            rgba(31,18,48,0.98)
         );
 
     box-shadow:
-
-        0 0 20px rgba(190,30,65,0.25),
-
-        0 0 50px rgba(120,20,60,0.12);
+        0 0 25px rgba(150,105,230,0.25),
+        0 0 60px rgba(110,70,190,0.12);
 }
 
 
-.stButton > button:active {
+/* ------------------------------------------------------------
+   SELECTBOX
+------------------------------------------------------------ */
 
-    transform:
-        scale(0.97);
-}
-
-
-/* ============================================================
-   RESULT
-============================================================ */
-
-.result-panel {
-
-    padding:
-        30px;
+div[data-baseweb="select"] > div {
 
     background:
-        linear-gradient(
-            135deg,
-            rgba(18,14,19,0.95),
-            rgba(7,6,9,0.98)
-        );
+        #0d0a13 !important;
 
     border:
-        1px solid rgba(200,190,180,0.10);
+        1px solid rgba(180,160,205,0.16) !important;
 
-    border-left:
-        3px solid #8d2741;
+    color:
+        #ddd6cb !important;
 
-    box-shadow:
-        0 25px 70px rgba(0,0,0,0.4);
-
-    position:
-        relative;
-
-    overflow:
-        hidden;
+    border-radius:
+        3px !important;
 }
 
 
-.result-panel::after {
+div[data-baseweb="select"] > div:hover {
 
-    content:
-        "";
+    border-color:
+        rgba(165,125,225,0.6) !important;
+}
 
-    position:
-        absolute;
 
-    width:
-        250px;
+/* ------------------------------------------------------------
+   SIDEBAR
+------------------------------------------------------------ */
 
-    height:
-        250px;
-
-    right:
-        -150px;
-
-    top:
-        -150px;
-
-    border-radius:
-        50%;
+section[data-testid="stSidebar"] {
 
     background:
         radial-gradient(
-            circle,
-            rgba(150,20,55,0.15),
-            transparent 70%
-        );
-
-    filter:
-        blur(10px);
-}
-
-
-.result-text {
-
-    font-family:
-        "Cormorant Garamond",
-        serif;
-
-    font-size:
-        1.45rem;
-
-    line-height:
-        1.65;
-
-    color:
-        #ddd5ca;
-
-    white-space:
-        pre-wrap;
-
-}
-
-
-/* ============================================================
-   INFO CARDS
-============================================================ */
-
-.info-card {
-
-    padding:
-        25px 15px;
-
-    text-align:
-        center;
-
-    background:
+            circle at 50% 0%,
+            rgba(80,50,120,0.2),
+            transparent 30%
+        ),
         linear-gradient(
-            145deg,
-            rgba(22,17,22,0.9),
-            rgba(9,8,11,0.95)
+            180deg,
+            #060509,
+            #0b0810
         );
 
-    border:
-        1px solid rgba(190,180,170,0.08);
-
-    transition:
-        all 0.3s ease;
-}
-
-
-.info-card:hover {
-
-    transform:
-        translateY(-5px);
-
-    border-color:
-        rgba(170,30,60,0.35);
+    border-right:
+        1px solid rgba(180,160,205,0.10);
 
     box-shadow:
-        0 15px 40px rgba(0,0,0,0.35);
+        15px 0 70px rgba(0,0,0,0.55);
 }
 
 
-.info-number {
+section[data-testid="stSidebar"] h3 {
 
     font-family:
         "Cinzel",
-        serif;
-
-    font-size:
-        1.7rem;
+        serif !important;
 
     color:
-        #d3cbc0;
-
-}
-
-
-.info-label {
-
-    margin-top:
-        5px;
-
-    font-size:
-        0.58rem;
+        #ddd5ca !important;
 
     letter-spacing:
-        0.2em;
+        0.08em;
+}
 
-    text-transform:
-        uppercase;
+
+section[data-testid="stSidebar"] label {
 
     color:
-        #726b64;
-
+        #a9a0ae !important;
 }
 
 
-/* ============================================================
-   STATUS
-============================================================ */
-
-.status {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        10px;
-
-    font-size:
-        0.65rem;
-
-    letter-spacing:
-        0.18em;
-
-    text-transform:
-        uppercase;
-
-    color:
-        #857d75;
-
-}
-
-
-.status-dot {
-
-    width:
-        7px;
-
-    height:
-        7px;
-
-    border-radius:
-        50%;
-
-    background:
-        #b72b4d;
-
-    box-shadow:
-        0 0 12px rgba(190,35,70,0.8);
-
-    animation:
-        statusPulse 1.8s infinite;
-}
-
-
-@keyframes statusPulse {
-
-    0%, 100% {
-        opacity: 0.55;
-        transform: scale(0.8);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.15);
-    }
-}
-
-
-/* ============================================================
-   IMAGE
-============================================================ */
-
-[data-testid="stImage"] img {
-
-    border:
-        1px solid rgba(190,180,170,0.12);
-
-    box-shadow:
-        0 25px 80px rgba(0,0,0,0.5);
-
-    transition:
-        all 0.4s ease;
-}
-
-
-[data-testid="stImage"] img:hover {
-
-    transform:
-        scale(1.015);
-
-    border-color:
-        rgba(180,35,65,0.4);
-
-    box-shadow:
-
-        0 30px 90px rgba(0,0,0,0.6),
-
-        0 0 35px rgba(130,20,50,0.12);
-}
-
-
-/* ============================================================
+/* ------------------------------------------------------------
    AUDIO
-============================================================ */
+------------------------------------------------------------ */
 
 audio {
 
     width:
         100%;
 
-    border-radius:
-        3px;
-
     filter:
         drop-shadow(
-            0 0 15px rgba(160,30,60,0.18)
+            0 0 20px rgba(130,90,210,0.18)
         );
 }
 
 
-/* ============================================================
+/* ------------------------------------------------------------
    DIVIDERS
-============================================================ */
+------------------------------------------------------------ */
 
 hr {
 
@@ -1198,9 +1056,7 @@ hr {
         linear-gradient(
             90deg,
             transparent,
-            rgba(170,30,60,0.4),
-            rgba(210,200,190,0.12),
-            rgba(170,30,60,0.4),
+            rgba(150,110,210,0.4),
             transparent
         ) !important;
 
@@ -1209,9 +1065,9 @@ hr {
 }
 
 
-/* ============================================================
-   RESPONSIVE
-============================================================ */
+/* ------------------------------------------------------------
+   MOBILE
+------------------------------------------------------------ */
 
 @media (max-width: 768px) {
 
@@ -1227,28 +1083,31 @@ hr {
     h1 {
 
         font-size:
-            3.3rem !important;
+            3rem !important;
 
         letter-spacing:
-            0.06em;
+            0.07em;
     }
 
-    .header-subtitle {
+    .magic-mirror {
 
-        font-size:
-            0.55rem;
-
-        letter-spacing:
-            0.25em;
-    }
-
-    .result-panel {
+        min-height:
+            390px;
 
         padding:
-            20px;
+            25px;
+
+        border-radius:
+            42% 42% 40% 40% / 15% 15% 42% 42%;
     }
 
-    .result-text {
+    .mirror-content {
+
+        min-height:
+            320px;
+    }
+
+    .mirror-message {
 
         font-size:
             1.2rem;
@@ -1257,54 +1116,6 @@ hr {
 }
 
 </style>
-
-
-<!-- ============================================================
-     PARTICLES
-============================================================ -->
-
-<div class="particle"
-     style="left:3%; animation-duration:18s; animation-delay:-4s;"></div>
-
-<div class="particle"
-     style="left:8%; animation-duration:14s; animation-delay:-9s;"></div>
-
-<div class="particle blue"
-     style="left:15%; animation-duration:22s; animation-delay:-15s;"></div>
-
-<div class="particle"
-     style="left:22%; animation-duration:17s; animation-delay:-6s;"></div>
-
-<div class="particle white"
-     style="left:29%; animation-duration:25s; animation-delay:-20s;"></div>
-
-<div class="particle"
-     style="left:36%; animation-duration:15s; animation-delay:-2s;"></div>
-
-<div class="particle blue"
-     style="left:44%; animation-duration:20s; animation-delay:-13s;"></div>
-
-<div class="particle"
-     style="left:52%; animation-duration:16s; animation-delay:-7s;"></div>
-
-<div class="particle white"
-     style="left:60%; animation-duration:23s; animation-delay:-18s;"></div>
-
-<div class="particle"
-     style="left:67%; animation-duration:19s; animation-delay:-5s;"></div>
-
-<div class="particle blue"
-     style="left:74%; animation-duration:14s; animation-delay:-10s;"></div>
-
-<div class="particle"
-     style="left:81%; animation-duration:21s; animation-delay:-16s;"></div>
-
-<div class="particle white"
-     style="left:88%; animation-duration:17s; animation-delay:-3s;"></div>
-
-<div class="particle"
-     style="left:95%; animation-duration:24s; animation-delay:-19s;"></div>
-
 """, unsafe_allow_html=True)
 
 
@@ -1312,34 +1123,27 @@ hr {
 # HEADER
 # ============================================================
 
-st.title("OCR")
+st.title("THE MAGIC MIRROR")
 
 st.markdown(
-    '<div class="header-subtitle">Reconocimiento óptico · Traducción · Síntesis de voz</div>',
+    '<div class="mirror-subtitle">Recognition · Deciphering · Translation · Voice</div>',
     unsafe_allow_html=True
 )
 
-st.markdown("""
-<div class="ornament">
-
-    <div class="ornament-line"></div>
-
-    <div class="ornament-symbol">✦</div>
-
-    <div class="ornament-line right"></div>
-
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    '<div class="mirror-divider"></div>',
+    unsafe_allow_html=True
+)
 
 
 # ============================================================
-# SOURCE SELECTION
+# SOURCE
 # ============================================================
 
 st.markdown(
-    '<div class="section-label">01 · Fuente de imagen</div>',
-    unsafe_allow_html=True
+    "### The Mirror",
 )
+
 
 cam_ = st.checkbox(
     "Usar Cámara"
@@ -1358,14 +1162,13 @@ else:
 
 
 # ============================================================
-# SIDEBAR · IMAGE PROCESSING
+# SIDEBAR PROCESSING
 # ============================================================
 
 with st.sidebar:
 
-    st.markdown(
-        '<div class="section-label">Procesamiento de imagen</div>',
-        unsafe_allow_html=True
+    st.subheader(
+        "Procesamiento"
     )
 
     filtro = st.radio(
@@ -1378,13 +1181,8 @@ with st.sidebar:
 
 
 # ============================================================
-# FILE UPLOADER
+# FILE UPLOAD
 # ============================================================
-
-st.markdown(
-    '<div class="section-label">Carga directa</div>',
-    unsafe_allow_html=True
-)
 
 bg_image = st.file_uploader(
     "Cargar Imagen:",
@@ -1396,7 +1194,7 @@ bg_image = st.file_uploader(
 
 
 # ============================================================
-# UPLOADED IMAGE OCR
+# UPLOADED IMAGE
 # ============================================================
 
 if bg_image is not None:
@@ -1409,8 +1207,6 @@ if bg_image is not None:
         use_container_width=True
     )
 
-    # Save image exactly as in the original workflow
-
     with open(
         uploaded_file.name,
         "wb"
@@ -1420,22 +1216,18 @@ if bg_image is not None:
             uploaded_file.read()
         )
 
-
     st.success(
         f"Imagen guardada como {uploaded_file.name}"
     )
-
 
     img_cv = cv2.imread(
         f"{uploaded_file.name}"
     )
 
-
     img_rgb = cv2.cvtColor(
         img_cv,
         cv2.COLOR_BGR2RGB
     )
-
 
     text = pytesseract.image_to_string(
         img_rgb
@@ -1458,10 +1250,6 @@ if img_file_buffer is not None:
         cv2.IMREAD_COLOR
     )
 
-
-    # Fixed original condition:
-    # radio returns "Sí" / "No"
-
     if filtro == "Sí":
 
         cv2_img = cv2.bitwise_not(
@@ -1472,12 +1260,10 @@ if img_file_buffer is not None:
 
         cv2_img = cv2_img
 
-
     img_rgb = cv2.cvtColor(
         cv2_img,
         cv2.COLOR_BGR2RGB
     )
-
 
     text = pytesseract.image_to_string(
         img_rgb
@@ -1485,74 +1271,104 @@ if img_file_buffer is not None:
 
 
 # ============================================================
-# OCR OUTPUT
+# MIRROR RESULT
 # ============================================================
-
-st.markdown("---")
-
-st.markdown(
-    '<div class="section-label">02 · Texto reconocido</div>',
-    unsafe_allow_html=True
-)
-
 
 clean_text = text.strip()
 
-character_count = len(clean_text)
 
-word_count = len(
-    clean_text.split()
-)
+if clean_text:
 
+    mirror_message = clean_text
 
-if character_count > 0:
-
-    status_text = "Texto detectado"
+    mirror_status = "Message deciphered"
 
 else:
 
-    status_text = "Esperando una imagen"
+    mirror_message = "The mirror is waiting for an image."
+
+    mirror_status = "Awaiting input"
 
 
-st.markdown(
-    f"""
-    <div class="status">
-
-        <div class="status-dot"></div>
-
-        <span>{status_text}</span>
-
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-# Escape HTML from OCR result
+# Escape text so OCR content cannot become HTML
 
 safe_text = (
-    text
+    mirror_message
     .replace("&", "&amp;")
     .replace("<", "&lt;")
     .replace(">", "&gt;")
 )
 
 
-if clean_text:
+# ============================================================
+# PARTICLE HTML
+#
+# This is ONE complete component.
+# Nothing here is placed independently into Streamlit.
+# ============================================================
 
-    display_text = safe_text
+particles = ""
 
-else:
+particle_settings = [
+    ("5%", "14s", "-4s", "35px"),
+    ("11%", "18s", "-10s", "-40px"),
+    ("17%", "21s", "-7s", "55px"),
+    ("24%", "16s", "-12s", "-30px"),
+    ("31%", "23s", "-19s", "45px"),
+    ("38%", "17s", "-5s", "-55px"),
+    ("45%", "20s", "-15s", "25px"),
+    ("52%", "15s", "-8s", "-35px"),
+    ("59%", "22s", "-17s", "60px"),
+    ("66%", "18s", "-4s", "-45px"),
+    ("73%", "24s", "-13s", "35px"),
+    ("80%", "16s", "-9s", "-50px"),
+    ("87%", "20s", "-18s", "45px"),
+    ("93%", "15s", "-6s", "-25px"),
+]
 
-    display_text = "No se ha reconocido ningún texto."
+for i, (left, duration, delay, drift) in enumerate(
+    particle_settings
+):
+
+    particles += f"""
+        <span style="
+            --left:{left};
+            --duration:{duration};
+            --delay:{delay};
+            --drift:{drift};
+        "></span>
+    """
 
 
 st.markdown(
     f"""
-    <div class="result-panel">
+    <div class="magic-mirror">
 
-        <div class="result-text">
-            {display_text}
+        <div class="mirror-particles">
+            {particles}
+        </div>
+
+        <div class="mirror-content">
+
+            <div class="mirror-eyebrow">
+                {mirror_status}
+            </div>
+
+            <div class="mirror-message">
+                {safe_text}
+                <span class="decipher-cursor"></span>
+            </div>
+
+            <div class="mirror-status">
+
+                <span class="status-orb"></span>
+
+                <span>
+                    Optical recognition active
+                </span>
+
+            </div>
+
         </div>
 
     </div>
@@ -1562,93 +1378,55 @@ st.markdown(
 
 
 # ============================================================
-# OCR STATISTICS
+# OCR INFORMATION
 # ============================================================
 
-st.markdown(
-    "<br>",
-    unsafe_allow_html=True
-)
+if clean_text:
 
+    character_count = len(clean_text)
 
-col1, col2, col3 = st.columns(3)
-
-
-with col1:
-
-    st.markdown(
-        f"""
-        <div class="info-card">
-
-            <div class="info-number">
-                {word_count}
-            </div>
-
-            <div class="info-label">
-                Palabras
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
+    word_count = len(
+        clean_text.split()
     )
 
+    col1, col2, col3 = st.columns(3)
 
-with col2:
+    with col1:
 
-    st.markdown(
-        f"""
-        <div class="info-card">
+        st.metric(
+            "Palabras",
+            word_count
+        )
 
-            <div class="info-number">
-                {character_count}
-            </div>
+    with col2:
 
-            <div class="info-label">
-                Caracteres
-            </div>
+        st.metric(
+            "Caracteres",
+            character_count
+        )
 
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    with col3:
 
+        processing = (
+            "Filtro"
+            if filtro == "Sí"
+            else "Original"
+        )
 
-with col3:
-
-    processing = (
-        "Filtro"
-        if filtro == "Sí"
-        else "Original"
-    )
-
-    st.markdown(
-        f"""
-        <div class="info-card">
-
-            <div class="info-number">
-                {processing}
-            </div>
-
-            <div class="info-label">
-                Procesamiento
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        st.metric(
+            "Procesamiento",
+            processing
+        )
 
 
 # ============================================================
-# TRANSLATION PANEL
+# TRANSLATION
 # ============================================================
 
 st.markdown("---")
 
 st.markdown(
-    '<div class="section-label">03 · Traducción y audio</div>',
-    unsafe_allow_html=True
+    "### Translation"
 )
 
 
@@ -1656,18 +1434,16 @@ with st.sidebar:
 
     st.markdown("---")
 
-    st.markdown(
-        '<div class="section-label">Parámetros de traducción</div>',
-        unsafe_allow_html=True
+    st.subheader(
+        "Parámetros de traducción"
     )
-
 
     translator = Translator()
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # INPUT LANGUAGE
-    # ========================================================
+    # --------------------------------------------------------
 
     in_lang = st.selectbox(
         "Seleccione el lenguaje de entrada",
@@ -1707,9 +1483,9 @@ with st.sidebar:
         input_language = "ja"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # OUTPUT LANGUAGE
-    # ========================================================
+    # --------------------------------------------------------
 
     out_lang = st.selectbox(
         "Select your output language",
@@ -1749,9 +1525,9 @@ with st.sidebar:
         output_language = "ja"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # ACCENT
-    # ========================================================
+    # --------------------------------------------------------
 
     english_accent = st.selectbox(
         "Seleccione el acento",
@@ -1802,7 +1578,7 @@ with st.sidebar:
 
 
 # ============================================================
-# AUDIO CONTROLS
+# TRANSLATION ACTION
 # ============================================================
 
 display_output_text = st.checkbox(
@@ -1810,7 +1586,9 @@ display_output_text = st.checkbox(
 )
 
 
-if st.button("CONVERTIR Y REPRODUCIR"):
+if st.button(
+    "DECIPHER AND TRANSLATE"
+):
 
     if not clean_text:
 
@@ -1833,21 +1611,60 @@ if st.button("CONVERTIR Y REPRODUCIR"):
             "rb"
         )
 
-
         audio_bytes = audio_file.read()
 
 
+        # ----------------------------------------------------
+        # TRANSLATED MIRROR
+        # ----------------------------------------------------
+
+        safe_output = (
+            output_text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        )
+
+
         st.markdown(
-            """
-            <div class="status">
+            f"""
+            <div class="magic-mirror">
 
-                <div class="status-dot"></div>
+                <div class="mirror-particles">
+                    {particles}
+                </div>
 
-                <span>Audio generado correctamente</span>
+                <div class="mirror-content">
+
+                    <div class="mirror-eyebrow">
+                        Translation complete
+                    </div>
+
+                    <div class="mirror-message">
+                        {safe_output}
+                        <span class="decipher-cursor"></span>
+                    </div>
+
+                    <div class="mirror-status">
+
+                        <span class="status-orb"></span>
+
+                        <span>
+                            Message translated
+                        </span>
+
+                    </div>
+
+                </div>
 
             </div>
             """,
             unsafe_allow_html=True
+        )
+
+
+        st.markdown(
+            "### Voice"
         )
 
 
@@ -1861,24 +1678,9 @@ if st.button("CONVERTIR Y REPRODUCIR"):
         if display_output_text:
 
             st.markdown(
-                """
-                <br>
-                <div class="section-label">
-                    Texto traducido
-                </div>
-                """,
-                unsafe_allow_html=True
+                "### Translated text"
             )
 
-            st.markdown(
-                f"""
-                <div class="result-panel">
-
-                    <div class="result-text">
-                        {output_text}
-                    </div>
-
-                </div>
-                """,
-                unsafe_allow_html=True
+            st.write(
+                output_text
             )
