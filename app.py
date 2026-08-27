@@ -1,3 +1,115 @@
+import streamlit as st
+import os
+import time
+import glob
+import cv2
+import numpy as np
+import pytesseract
+from gtts import gTTS
+from googletrans import Translator
+
+
+# ============================================================
+# CONFIGURACIÓN
+# ============================================================
+
+st.set_page_config(
+    page_title="Espejo Mágico",
+    page_icon="◈",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+
+# ============================================================
+# VARIABLES
+# ============================================================
+
+text = ""
+
+
+# ============================================================
+# CARPETA DE AUDIO
+# ============================================================
+
+os.makedirs("temp", exist_ok=True)
+
+
+# ============================================================
+# LIMPIEZA DE ARCHIVOS
+# ============================================================
+
+def remove_files(days):
+
+    mp3_files = glob.glob("temp/*.mp3")
+
+    now = time.time()
+
+    for file in mp3_files:
+
+        if os.stat(file).st_mtime < now - (days * 86400):
+
+            os.remove(file)
+
+
+remove_files(7)
+
+
+# ============================================================
+# TRADUCCIÓN Y AUDIO
+# ============================================================
+
+def text_to_speech(
+    input_language,
+    output_language,
+    text,
+    tld
+):
+
+    translator = Translator()
+
+    translation = translator.translate(
+        text,
+        src=input_language,
+        dest=output_language
+    )
+
+    trans_text = translation.text
+
+    tts = gTTS(
+        trans_text,
+        lang=output_language,
+        tld=tld,
+        slow=False
+    )
+
+    try:
+
+        my_file_name = text[:20]
+
+    except:
+
+        my_file_name = "audio"
+
+
+    my_file_name = "".join(
+        c for c in my_file_name
+        if c.isalnum() or c in (" ", "_", "-")
+    ).strip()
+
+
+    if not my_file_name:
+
+        my_file_name = "audio"
+
+
+    tts.save(
+        f"temp/{my_file_name}.mp3"
+    )
+
+    return my_file_name, trans_text
+
+
 # ============================================================
 # ESTILO VISUAL
 # ============================================================
@@ -7,33 +119,33 @@ st.markdown(
 <style>
 
 /* ============================================================
-   FONDO PRINCIPAL
+   FONDO
    ============================================================ */
 
 .stApp {
 
     background:
         radial-gradient(
-            circle at 20% 20%,
-            rgba(90, 55, 170, 0.20),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 80% 30%,
-            rgba(40, 100, 170, 0.16),
+            circle at 15% 20%,
+            rgba(105, 60, 190, 0.25),
             transparent 28%
         ),
         radial-gradient(
+            circle at 85% 25%,
+            rgba(50, 110, 210, 0.18),
+            transparent 30%
+        ),
+        radial-gradient(
             circle at 50% 90%,
-            rgba(150, 45, 130, 0.16),
+            rgba(170, 50, 150, 0.20),
             transparent 35%
         ),
         linear-gradient(
-            120deg,
+            125deg,
             #030207,
-            #0a0612,
-            #050713,
-            #090510,
+            #0b0614,
+            #050916,
+            #100713,
             #030207
         );
 
@@ -46,8 +158,6 @@ st.markdown(
 }
 
 
-/* Movimiento del fondo */
-
 @keyframes backgroundFlow {
 
     0% {
@@ -59,7 +169,7 @@ st.markdown(
     }
 
     50% {
-        background-position: 100% 70%;
+        background-position: 100% 75%;
     }
 
     75% {
@@ -74,13 +184,8 @@ st.markdown(
 
 
 /* ============================================================
-   PARTÍCULAS DE FONDO
+   PARTÍCULAS
    ============================================================ */
-
-/*
-   Se utilizan pseudo-elementos del propio contenedor.
-   No se crean <span>, <div> ni elementos HTML adicionales.
-*/
 
 .stApp::before {
 
@@ -100,59 +205,56 @@ st.markdown(
 
         radial-gradient(
             circle,
-            rgba(210,190,255,0.9) 0 1px,
+            rgba(225,210,255,0.9) 0 1px,
             transparent 2px
         ),
 
         radial-gradient(
             circle,
-            rgba(130,180,255,0.7) 0 1px,
+            rgba(125,180,255,0.75) 0 1px,
             transparent 2px
         ),
 
         radial-gradient(
             circle,
-            rgba(235,190,255,0.6) 0 1.5px,
-            transparent 2.5px
+            rgba(210,150,255,0.65) 0 1px,
+            transparent 2px
         );
 
     background-size:
-        83px 97px,
-        137px 151px,
+        73px 91px,
+        137px 157px,
         211px 193px;
 
-    background-position:
-        10px 20px,
-        50px 80px,
-        100px 30px;
-
     animation:
-        particlesDrift 35s linear infinite;
+        particleDrift 35s linear infinite;
 
 }
 
 
-@keyframes particlesDrift {
+@keyframes particleDrift {
 
-    from {
+    0% {
         transform:
-            translate3d(0, 0, 0);
+            translate(0, 0);
     }
 
     50% {
         transform:
-            translate3d(25px, -40px, 0);
+            translate(25px, -40px);
     }
 
-    to {
+    100% {
         transform:
-            translate3d(-10px, -80px, 0);
+            translate(-15px, -80px);
     }
 
 }
 
 
-/* Segunda capa de partículas */
+/* ============================================================
+   NIEBLA LUMINOSA
+   ============================================================ */
 
 .stApp::after {
 
@@ -170,43 +272,43 @@ st.markdown(
 
         radial-gradient(
             circle at 20% 30%,
-            rgba(110,70,220,0.08),
-            transparent 12%
-        ),
-
-        radial-gradient(
-            circle at 75% 25%,
-            rgba(70,130,230,0.08),
+            rgba(120,70,220,0.10),
             transparent 15%
         ),
 
         radial-gradient(
-            circle at 45% 80%,
-            rgba(180,60,180,0.08),
+            circle at 75% 20%,
+            rgba(50,120,220,0.09),
             transparent 17%
+        ),
+
+        radial-gradient(
+            circle at 55% 80%,
+            rgba(190,60,180,0.09),
+            transparent 20%
         );
 
     filter:
-        blur(25px);
+        blur(30px);
 
     animation:
-        atmosphericMovement 14s ease-in-out infinite alternate;
+        atmosphericMotion 12s ease-in-out infinite alternate;
 
 }
 
 
-@keyframes atmosphericMovement {
+@keyframes atmosphericMotion {
 
     from {
         transform:
-            translate(-2%, -2%)
+            translate(-3%, -2%)
             scale(1);
     }
 
     to {
         transform:
-            translate(3%, 2%)
-            scale(1.08);
+            translate(3%, 3%)
+            scale(1.10);
     }
 
 }
@@ -258,56 +360,58 @@ h1 {
         0.14em;
 
     color:
-        #f0e9df !important;
+        #eee7dc !important;
 
     text-shadow:
 
-        0 0 8px
-        rgba(230,215,255,0.55),
+        0 0 10px
+        rgba(230,215,255,0.60),
 
-        0 0 25px
+        0 0 30px
         rgba(150,100,240,0.45),
 
-        0 0 60px
+        0 0 70px
         rgba(90,50,180,0.35);
 
     animation:
-        titleGlow 4s ease-in-out infinite;
+        titlePulse 4s ease-in-out infinite;
 
 }
 
 
-@keyframes titleGlow {
+@keyframes titlePulse {
 
     0%, 100% {
 
-        text-shadow:
-
-            0 0 8px
-            rgba(230,215,255,0.45),
-
-            0 0 25px
-            rgba(150,100,240,0.35),
-
-            0 0 60px
-            rgba(90,50,180,0.25);
+        filter:
+            brightness(0.95);
 
     }
 
     50% {
 
-        text-shadow:
-
-            0 0 12px
-            rgba(240,225,255,0.75),
-
-            0 0 40px
-            rgba(165,115,255,0.60),
-
-            0 0 90px
-            rgba(100,55,210,0.40);
+        filter:
+            brightness(1.15);
 
     }
+
+}
+
+
+/* ============================================================
+   SUBTÍTULOS
+   ============================================================ */
+
+h2,
+h3 {
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    color:
+        #ddd5c9 !important;
 
 }
 
@@ -319,14 +423,15 @@ h1 {
 [data-testid="stAlert"] {
 
     background:
-        rgba(10,8,17,0.80) !important;
+        rgba(10,8,17,0.82) !important;
 
     border:
         1px solid
-        rgba(170,140,220,0.20) !important;
+        rgba(175,145,220,0.25) !important;
 
     box-shadow:
-        0 10px 40px rgba(0,0,0,0.30);
+        0 15px 50px
+        rgba(0,0,0,0.35);
 
 }
 
@@ -340,29 +445,29 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     background:
         linear-gradient(
             145deg,
-            rgba(20,14,30,0.90),
-            rgba(7,6,12,0.90)
+            rgba(22,15,34,0.92),
+            rgba(6,5,11,0.94)
         );
 
     border:
         1px solid
-        rgba(170,140,215,0.22);
+        rgba(175,145,220,0.22);
 
     border-radius:
         10px;
 
     box-shadow:
 
-        inset 0 0 30px
-        rgba(130,80,200,0.05),
+        inset 0 0 35px
+        rgba(130,80,200,0.06),
 
-        0 15px 50px
-        rgba(0,0,0,0.35);
+        0 15px 55px
+        rgba(0,0,0,0.40);
 
     transition:
-        transform 0.35s ease,
-        box-shadow 0.35s ease,
-        border-color 0.35s ease;
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
 
 }
 
@@ -370,36 +475,22 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
 div[data-testid="stVerticalBlockBorderWrapper"]:hover {
 
     transform:
-        translateY(-7px)
+        translateY(-6px)
         scale(1.01);
 
     border-color:
-        rgba(195,165,240,0.55);
+        rgba(210,180,245,0.60);
 
     box-shadow:
 
-        inset 0 0 40px
-        rgba(140,90,220,0.08),
+        inset 0 0 45px
+        rgba(140,90,220,0.10),
 
-        0 20px 70px
-        rgba(80,45,150,0.30),
+        0 20px 75px
+        rgba(90,45,170,0.30),
 
         0 0 30px
-        rgba(140,100,220,0.12);
-
-}
-
-
-/* ============================================================
-   ESPEJO
-   ============================================================ */
-
-div[data-testid="stVerticalBlock"]:has(
-    [data-testid="stMetric"]
-) {
-
-    transition:
-        transform 0.3s ease;
+        rgba(160,110,240,0.14);
 
 }
 
@@ -410,6 +501,9 @@ div[data-testid="stVerticalBlock"]:has(
 
 .stButton > button {
 
+    width:
+        100%;
+
     min-height:
         58px;
 
@@ -418,37 +512,31 @@ div[data-testid="stVerticalBlock"]:has(
 
     border:
         1px solid
-        rgba(180,145,225,0.55);
+        rgba(180,145,225,0.60);
 
     background:
 
         linear-gradient(
             120deg,
-            rgba(48,30,70,0.95),
-            rgba(16,11,25,0.98),
-            rgba(43,26,68,0.95)
+            #26163a,
+            #0e0916,
+            #321a4b,
+            #0e0916
         );
 
     background-size:
-        200% 200%;
+        300% 300%;
 
     color:
-        #f1eae1;
+        #f0e9df;
 
     font-family:
         Georgia,
         "Times New Roman",
         serif;
 
-    font-size:
-        1rem;
-
     letter-spacing:
-        0.16em;
-
-    box-shadow:
-        0 0 20px
-        rgba(110,70,180,0.10);
+        0.15em;
 
     transition:
         all 0.25s ease;
@@ -465,66 +553,34 @@ div[data-testid="stVerticalBlock"]:has(
         100% 50%;
 
     border-color:
-        rgba(225,205,250,0.85);
+        rgba(230,210,250,0.90);
 
     box-shadow:
 
-        0 0 20px
-        rgba(170,120,245,0.35),
+        0 0 25px
+        rgba(170,120,245,0.40),
 
-        0 0 55px
+        0 0 70px
         rgba(100,60,190,0.20);
 
 }
 
 
 /* ============================================================
-   SELECTORES
-   ============================================================ */
-
-div[data-baseweb="select"] > div {
-
-    background:
-        rgba(10,8,16,0.92) !important;
-
-    border:
-        1px solid
-        rgba(175,145,215,0.22) !important;
-
-    transition:
-        border-color 0.25s ease,
-        box-shadow 0.25s ease;
-
-}
-
-
-div[data-baseweb="select"] > div:hover {
-
-    border-color:
-        rgba(190,155,235,0.60) !important;
-
-    box-shadow:
-        0 0 20px
-        rgba(130,85,200,0.16);
-
-}
-
-
-/* ============================================================
-   SUBIDA DE ARCHIVOS
+   UPLOADER
    ============================================================ */
 
 [data-testid="stFileUploader"] {
 
     background:
-        rgba(7,6,12,0.55);
+        rgba(7,6,12,0.65);
 
     border:
         1px dashed
-        rgba(170,140,215,0.30);
+        rgba(170,140,215,0.35);
 
     border-radius:
-        6px;
+        7px;
 
     transition:
         all 0.3s ease;
@@ -535,30 +591,11 @@ div[data-baseweb="select"] > div:hover {
 [data-testid="stFileUploader"]:hover {
 
     border-color:
-        rgba(205,175,245,0.70);
+        rgba(210,180,245,0.75);
 
     box-shadow:
         0 0 35px
-        rgba(110,65,190,0.18);
-
-}
-
-
-/* ============================================================
-   CÁMARA
-   ============================================================ */
-
-[data-testid="stCameraInput"] {
-
-    background:
-        rgba(7,6,12,0.60);
-
-    border:
-        1px solid
-        rgba(170,140,215,0.20);
-
-    border-radius:
-        6px;
+        rgba(120,70,200,0.20);
 
 }
 
@@ -574,11 +611,39 @@ div[data-baseweb="select"] > div:hover {
 
     box-shadow:
 
-        0 0 20px
-        rgba(120,80,200,0.15),
+        0 0 25px
+        rgba(130,80,210,0.18),
 
-        0 15px 45px
-        rgba(0,0,0,0.40);
+        0 20px 55px
+        rgba(0,0,0,0.50);
+
+}
+
+
+/* ============================================================
+   SELECTORES
+   ============================================================ */
+
+div[data-baseweb="select"] > div {
+
+    background:
+        rgba(9,7,14,0.95) !important;
+
+    border:
+        1px solid
+        rgba(175,145,215,0.22) !important;
+
+}
+
+
+div[data-baseweb="select"] > div:hover {
+
+    border-color:
+        rgba(205,175,245,0.65) !important;
+
+    box-shadow:
+        0 0 25px
+        rgba(130,80,200,0.15);
 
 }
 
@@ -590,14 +655,14 @@ div[data-baseweb="select"] > div:hover {
 [data-testid="stMetric"] {
 
     background:
-        rgba(12,9,20,0.72);
+        rgba(11,8,18,0.78);
 
     border:
         1px solid
-        rgba(170,145,205,0.15);
+        rgba(175,145,210,0.17);
 
     border-radius:
-        6px;
+        7px;
 
     padding:
         15px;
@@ -619,23 +684,23 @@ section[data-testid="stSidebar"] {
 
         radial-gradient(
             circle at 50% 10%,
-            rgba(85,50,135,0.15),
+            rgba(90,50,145,0.16),
             transparent 35%
         ),
 
         linear-gradient(
             180deg,
             #050409,
-            #0a0710
+            #0b0711
         );
 
     border-right:
         1px solid
-        rgba(175,145,210,0.12);
+        rgba(175,145,210,0.14);
 
     box-shadow:
         15px 0 70px
-        rgba(0,0,0,0.55);
+        rgba(0,0,0,0.60);
 
 }
 
@@ -651,8 +716,8 @@ audio {
 
     filter:
         drop-shadow(
-            0 0 18px
-            rgba(130,85,210,0.25)
+            0 0 20px
+            rgba(135,90,220,0.30)
         );
 
 }
@@ -671,19 +736,18 @@ hr {
         1px !important;
 
     background:
-
         linear-gradient(
             90deg,
             transparent,
             rgba(170,130,230,0.50),
-            rgba(220,200,250,0.30),
+            rgba(220,200,250,0.35),
             rgba(170,130,230,0.50),
             transparent
         ) !important;
 
     box-shadow:
-        0 0 12px
-        rgba(130,80,200,0.25);
+        0 0 15px
+        rgba(130,80,200,0.30);
 
 }
 
@@ -708,28 +772,29 @@ st.caption(
 # INSTRUCCIONES
 # ============================================================
 
-st.subheader("Cómo funciona")
+st.subheader("Instrucciones")
 
 st.info(
     """
     **1. Elige cámara o imagen.**
-    
+
     **2. Introduce una imagen con texto.**
-    
-    **3. Selecciona idioma original y destino en el panel lateral.**
-    
+
+    **3. Selecciona los idiomas en el panel lateral.**
+
     **4. Pulsa "DECIFRAR Y TRADUCIR".**
-    
+
     **5. Lee o escucha el resultado.**
     """
 )
 
 
 # ============================================================
-# FUENTE
+# FUENTE DE IMAGEN
 # ============================================================
 
 st.subheader("Fuente de imagen")
+
 
 camera_col, upload_col = st.columns(2)
 
@@ -782,7 +847,78 @@ with upload_col:
 
 
 # ============================================================
-# ESPEJO VISUAL
+# PROCESAMIENTO
+# ============================================================
+
+with st.sidebar:
+
+    st.header("Procesamiento")
+
+    filtro = st.radio(
+        "Filtro para la cámara",
+        (
+            "Sí",
+            "No"
+        )
+    )
+
+
+# ============================================================
+# OCR
+# ============================================================
+
+if bg_image is not None:
+
+    img_bytes = bg_image.getvalue()
+
+    img_cv = cv2.imdecode(
+        np.frombuffer(
+            img_bytes,
+            np.uint8
+        ),
+        cv2.IMREAD_COLOR
+    )
+
+    img_rgb = cv2.cvtColor(
+        img_cv,
+        cv2.COLOR_BGR2RGB
+    )
+
+    text = pytesseract.image_to_string(
+        img_rgb
+    )
+
+
+elif img_file_buffer is not None:
+
+    bytes_data = img_file_buffer.getvalue()
+
+    cv2_img = cv2.imdecode(
+        np.frombuffer(
+            bytes_data,
+            np.uint8
+        ),
+        cv2.IMREAD_COLOR
+    )
+
+    if filtro == "Sí":
+
+        cv2_img = cv2.bitwise_not(
+            cv2_img
+        )
+
+    img_rgb = cv2.cvtColor(
+        cv2_img,
+        cv2.COLOR_BGR2RGB
+    )
+
+    text = pytesseract.image_to_string(
+        img_rgb
+    )
+
+
+# ============================================================
+# ESPEJO
 # ============================================================
 
 st.subheader("Espejo")
@@ -801,27 +937,195 @@ if text.strip():
 
 else:
 
-    st.markdown(
-        """
-        <style>
-
-        /*
-        Este bloque solamente modifica el fondo del
-        contenedor visual mediante CSS.
-        No contiene texto HTML visible.
-        */
-
-        [data-testid="stVerticalBlock"]:has(
-            .mirror-trigger
-        ) {
-            position: relative;
-        }
-
-        </style>
-        """,
-        unsafe_allow_html=True
+    st.write(
+        "El espejo está esperando una imagen."
     )
 
-    st.markdown(
-        "Esperando una imagen..."
+
+# ============================================================
+# INFORMACIÓN DEL OCR
+# ============================================================
+
+if text.strip():
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        st.metric(
+            "Palabras",
+            len(text.split())
+        )
+
+    with col2:
+
+        st.metric(
+            "Caracteres",
+            len(text.strip())
+        )
+
+    with col3:
+
+        st.metric(
+            "Estado",
+            "Listo"
+        )
+
+
+# ============================================================
+# TRADUCCIÓN
+# ============================================================
+
+st.markdown("---")
+
+st.subheader("Traducción")
+
+
+with st.sidebar:
+
+    st.header(
+        "Configuración de traducción"
     )
+
+
+    languages = {
+
+        "Inglés": "en",
+        "Español": "es",
+        "Bengalí": "bn",
+        "Coreano": "ko",
+        "Mandarín": "zh-cn",
+        "Japonés": "ja",
+        "Ruso": "ru",
+        "Alemán": "de"
+
+    }
+
+
+    in_lang = st.selectbox(
+        "Idioma original",
+        list(languages.keys())
+    )
+
+    input_language = languages[in_lang]
+
+
+    out_lang = st.selectbox(
+        "Idioma de destino",
+        list(languages.keys())
+    )
+
+    output_language = languages[out_lang]
+
+
+    accents = {
+
+        "Predeterminado": "com",
+        "India": "co.in",
+        "Reino Unido": "co.uk",
+        "Estados Unidos": "com",
+        "Canadá": "ca",
+        "Australia": "com.au",
+        "Irlanda": "ie",
+        "Sudáfrica": "co.za"
+
+    }
+
+
+    accent = st.selectbox(
+        "Acento de voz",
+        list(accents.keys())
+    )
+
+    tld = accents[accent]
+
+
+# ============================================================
+# BOTÓN
+# ============================================================
+
+translate = st.button(
+    "DECIFRAR Y TRADUCIR",
+    use_container_width=True
+)
+
+
+# ============================================================
+# RESULTADO
+# ============================================================
+
+if translate:
+
+    if not text.strip():
+
+        st.warning(
+            "Primero proporciona una imagen con texto."
+        )
+
+    else:
+
+        try:
+
+            result, output_text = text_to_speech(
+                input_language,
+                output_language,
+                text,
+                tld
+            )
+
+
+            st.subheader(
+                "Mensaje descifrado"
+            )
+
+
+            # Revelación progresiva
+
+            output_placeholder = st.empty()
+
+            current_text = ""
+
+            for character in output_text:
+
+                current_text += character
+
+                output_placeholder.markdown(
+                    f"### {current_text}"
+                )
+
+                time.sleep(0.015)
+
+
+            st.success(
+                "Traducción completada."
+            )
+
+
+            # =================================================
+            # AUDIO
+            # =================================================
+
+            st.subheader(
+                "Escuchar traducción"
+            )
+
+
+            with open(
+                f"temp/{result}.mp3",
+                "rb"
+            ) as audio_file:
+
+                audio_bytes = audio_file.read()
+
+
+            st.audio(
+                audio_bytes,
+                format="audio/mp3"
+            )
+
+
+        except Exception as e:
+
+            st.error(
+                f"No fue posible completar la traducción: {e}"
+            )
