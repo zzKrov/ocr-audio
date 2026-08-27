@@ -10,7 +10,7 @@ from googletrans import Translator
 
 
 # ============================================================
-# CONFIGURACIÓN
+# CONFIGURATION
 # ============================================================
 
 st.set_page_config(
@@ -29,14 +29,14 @@ text = ""
 
 
 # ============================================================
-# CARPETA DE AUDIO
+# AUDIO DIRECTORY
 # ============================================================
 
 os.makedirs("temp", exist_ok=True)
 
 
 # ============================================================
-# LIMPIEZA DE ARCHIVOS
+# REMOVE OLD AUDIO FILES
 # ============================================================
 
 def remove_files(days):
@@ -56,7 +56,7 @@ remove_files(7)
 
 
 # ============================================================
-# TRADUCCIÓN Y AUDIO
+# TRANSLATION + TEXT TO SPEECH
 # ============================================================
 
 def text_to_speech(
@@ -111,7 +111,7 @@ def text_to_speech(
 
 
 # ============================================================
-# ESTILO VISUAL
+# VISUAL STYLE
 # ============================================================
 
 st.markdown(
@@ -119,7 +119,7 @@ st.markdown(
 <style>
 
 /* ============================================================
-   FONDO
+   MAIN BACKGROUND
    ============================================================ */
 
 .stApp {
@@ -149,8 +149,7 @@ st.markdown(
             #030207
         );
 
-    background-size:
-        250% 250%;
+    background-size: 250% 250%;
 
     animation:
         backgroundFlow 18s ease infinite;
@@ -184,7 +183,7 @@ st.markdown(
 
 
 /* ============================================================
-   PARTÍCULAS
+   AMBIENT PARTICLES
    ============================================================ */
 
 .stApp::before {
@@ -199,61 +198,46 @@ st.markdown(
 
     z-index: 0;
 
-    opacity: 0.55;
+    opacity: 0.45;
 
     background-image:
 
         radial-gradient(
             circle,
-            rgba(225,210,255,0.9) 0 1px,
-            transparent 2px
-        ),
-
-        radial-gradient(
-            circle,
-            rgba(125,180,255,0.75) 0 1px,
-            transparent 2px
-        ),
-
-        radial-gradient(
-            circle,
-            rgba(210,150,255,0.65) 0 1px,
+            rgba(225,210,255,0.8) 0 1px,
             transparent 2px
         );
 
-    background-size:
-        73px 91px,
-        137px 157px,
-        211px 193px;
+    background-size: 97px 113px;
 
     animation:
-        particleDrift 35s linear infinite;
+        backgroundParticles 30s linear infinite;
 
 }
 
 
-@keyframes particleDrift {
+@keyframes backgroundParticles {
 
-    0% {
+    from {
         transform:
-            translate(0, 0);
+            translate3d(0, 0, 0);
     }
 
     50% {
         transform:
-            translate(25px, -40px);
+            translate3d(35px, -50px, 0);
     }
 
-    100% {
+    to {
         transform:
-            translate(-15px, -80px);
+            translate3d(-15px, -100px, 0);
     }
 
 }
 
 
 /* ============================================================
-   NIEBLA LUMINOSA
+   ATMOSPHERE
    ============================================================ */
 
 .stApp::after {
@@ -288,8 +272,7 @@ st.markdown(
             transparent 20%
         );
 
-    filter:
-        blur(30px);
+    filter: blur(30px);
 
     animation:
         atmosphericMotion 12s ease-in-out infinite alternate;
@@ -315,7 +298,7 @@ st.markdown(
 
 
 /* ============================================================
-   CONTENIDO
+   CONTENT
    ============================================================ */
 
 .block-container {
@@ -324,26 +307,22 @@ st.markdown(
 
     z-index: 1;
 
-    max-width:
-        1400px;
+    max-width: 1400px;
 
-    padding-top:
-        2rem;
+    padding-top: 2rem;
 
-    padding-bottom:
-        6rem;
+    padding-bottom: 6rem;
 
 }
 
 
 /* ============================================================
-   TÍTULO
+   TITLE
    ============================================================ */
 
 h1 {
 
-    text-align:
-        center;
+    text-align: center;
 
     font-family:
         Georgia,
@@ -353,14 +332,11 @@ h1 {
     font-size:
         clamp(3rem, 7vw, 6rem) !important;
 
-    font-weight:
-        500 !important;
+    font-weight: 500 !important;
 
-    letter-spacing:
-        0.14em;
+    letter-spacing: 0.14em;
 
-    color:
-        #eee7dc !important;
+    color: #eee7dc !important;
 
     text-shadow:
 
@@ -399,7 +375,7 @@ h1 {
 
 
 /* ============================================================
-   SUBTÍTULOS
+   HEADINGS
    ============================================================ */
 
 h2,
@@ -417,7 +393,7 @@ h3 {
 
 
 /* ============================================================
-   INSTRUCCIONES
+   INFO BOX
    ============================================================ */
 
 [data-testid="stAlert"] {
@@ -437,7 +413,7 @@ h3 {
 
 
 /* ============================================================
-   TARJETAS
+   BORDERED STREAMLIT CONTAINERS
    ============================================================ */
 
 div[data-testid="stVerticalBlockBorderWrapper"] {
@@ -496,19 +472,16 @@ div[data-testid="stVerticalBlockBorderWrapper"]:hover {
 
 
 /* ============================================================
-   BOTONES
+   BUTTONS
    ============================================================ */
 
 .stButton > button {
 
-    width:
-        100%;
+    width: 100%;
 
-    min-height:
-        58px;
+    min-height: 58px;
 
-    border-radius:
-        5px;
+    border-radius: 5px;
 
     border:
         1px solid
@@ -524,22 +497,18 @@ div[data-testid="stVerticalBlockBorderWrapper"]:hover {
             #0e0916
         );
 
-    background-size:
-        300% 300%;
+    background-size: 300% 300%;
 
-    color:
-        #f0e9df;
+    color: #f0e9df;
 
     font-family:
         Georgia,
         "Times New Roman",
         serif;
 
-    letter-spacing:
-        0.15em;
+    letter-spacing: 0.15em;
 
-    transition:
-        all 0.25s ease;
+    transition: all 0.25s ease;
 
 }
 
@@ -567,7 +536,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:hover {
 
 
 /* ============================================================
-   UPLOADER
+   FILE UPLOADER
    ============================================================ */
 
 [data-testid="stFileUploader"] {
@@ -579,8 +548,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:hover {
         1px dashed
         rgba(170,140,215,0.35);
 
-    border-radius:
-        7px;
+    border-radius: 7px;
 
     transition:
         all 0.3s ease;
@@ -601,13 +569,12 @@ div[data-testid="stVerticalBlockBorderWrapper"]:hover {
 
 
 /* ============================================================
-   IMÁGENES
+   IMAGES
    ============================================================ */
 
 [data-testid="stImage"] img {
 
-    border-radius:
-        8px;
+    border-radius: 8px;
 
     box-shadow:
 
@@ -621,7 +588,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:hover {
 
 
 /* ============================================================
-   SELECTORES
+   SELECT BOXES
    ============================================================ */
 
 div[data-baseweb="select"] > div {
@@ -644,32 +611,6 @@ div[data-baseweb="select"] > div:hover {
     box-shadow:
         0 0 25px
         rgba(130,80,200,0.15);
-
-}
-
-
-/* ============================================================
-   MÉTRICAS
-   ============================================================ */
-
-[data-testid="stMetric"] {
-
-    background:
-        rgba(11,8,18,0.78);
-
-    border:
-        1px solid
-        rgba(175,145,210,0.17);
-
-    border-radius:
-        7px;
-
-    padding:
-        15px;
-
-    box-shadow:
-        inset 0 0 25px
-        rgba(120,75,190,0.05);
 
 }
 
@@ -711,8 +652,7 @@ section[data-testid="stSidebar"] {
 
 audio {
 
-    width:
-        100%;
+    width: 100%;
 
     filter:
         drop-shadow(
@@ -724,30 +664,551 @@ audio {
 
 
 /* ============================================================
-   SEPARADORES
+   MIRROR
    ============================================================ */
 
-hr {
+.magic-mirror {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 620px;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background:
+
+        radial-gradient(
+            ellipse at 50% 50%,
+            rgba(75,48,120,0.34),
+            rgba(12,8,22,0.96) 68%
+        );
 
     border:
-        none !important;
+        1px solid
+        rgba(190,165,235,0.42);
 
-    height:
-        1px !important;
+    box-shadow:
+
+        0 0 20px
+        rgba(140,90,220,0.30),
+
+        0 0 70px
+        rgba(100,55,190,0.20),
+
+        inset 0 0 80px
+        rgba(100,65,160,0.25);
+
+}
+
+
+/* ============================================================
+   MIRROR LIGHT
+   ============================================================ */
+
+.magic-mirror::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 75%;
+
+    height: 65%;
+
+    left: 12.5%;
+
+    top: 17%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(175,145,235,0.13),
+            rgba(90,55,160,0.07) 45%,
+            transparent 72%
+        );
+
+    filter: blur(20px);
+
+    animation:
+        mirrorBreathing 5s ease-in-out infinite;
+
+}
+
+
+@keyframes mirrorBreathing {
+
+    0%, 100% {
+
+        transform:
+            scale(0.94);
+
+        opacity:
+            0.55;
+
+    }
+
+    50% {
+
+        transform:
+            scale(1.08);
+
+        opacity:
+            1;
+
+    }
+
+}
+
+
+/* ============================================================
+   MOVING LIGHT
+   ============================================================ */
+
+.mirror-light {
+
+    position: absolute;
+
+    width: 240px;
+
+    height: 240px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(225,210,255,0.18),
+            rgba(130,90,220,0.08),
+            transparent 70%
+        );
+
+    filter: blur(12px);
+
+    animation:
+        lightMovement 9s ease-in-out infinite alternate;
+
+    pointer-events: none;
+
+}
+
+
+@keyframes lightMovement {
+
+    0% {
+
+        left: 8%;
+        top: 15%;
+
+    }
+
+    30% {
+
+        left: 62%;
+        top: 12%;
+
+    }
+
+    60% {
+
+        left: 75%;
+        top: 62%;
+
+    }
+
+    100% {
+
+        left: 20%;
+        top: 65%;
+
+    }
+
+}
+
+
+/* ============================================================
+   PARTICLES INSIDE MIRROR
+   ============================================================ */
+
+.magic-particles {
+
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+}
+
+
+.magic-particle {
+
+    position: absolute;
+
+    width: 3px;
+
+    height: 3px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(225,215,255,0.90);
+
+    box-shadow:
+        0 0 8px
+        rgba(190,160,255,0.90);
+
+    animation:
+        particleFloat var(--duration) ease-in-out infinite;
+
+    animation-delay:
+        var(--delay);
+
+}
+
+
+@keyframes particleFloat {
+
+    0% {
+
+        transform:
+            translate3d(
+                0,
+                30px,
+                0
+            )
+            scale(0.4);
+
+        opacity: 0;
+
+    }
+
+    15% {
+
+        opacity: 0.85;
+
+    }
+
+    50% {
+
+        transform:
+            translate3d(
+                var(--drift),
+                -180px,
+                0
+            )
+            scale(1);
+
+        opacity: 1;
+
+    }
+
+    85% {
+
+        opacity: 0.65;
+
+    }
+
+    100% {
+
+        transform:
+            translate3d(
+                calc(var(--drift) * -0.5),
+                -390px,
+                0
+            )
+            scale(0.2);
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* ============================================================
+   MIRROR CONTENT
+   ============================================================ */
+
+.mirror-content {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 5;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 60px;
+
+    text-align: center;
+
+}
+
+
+.mirror-label {
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size: 0.75rem;
+
+    letter-spacing: 0.35em;
+
+    color:
+        rgba(205,190,225,0.65);
+
+    margin-bottom: 25px;
+
+    text-transform: uppercase;
+
+}
+
+
+.mirror-message {
+
+    max-width: 850px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(1.5rem, 3vw, 2.7rem);
+
+    line-height: 1.45;
+
+    color: #eee8f5;
+
+    text-shadow:
+
+        0 0 8px
+        rgba(230,215,255,0.55),
+
+        0 0 30px
+        rgba(150,105,230,0.40);
+
+}
+
+
+/* ============================================================
+   DECIPHER ANIMATION
+   ============================================================ */
+
+.deciphered {
+
+    animation:
+        messageReveal 1.4s ease forwards;
+
+}
+
+
+@keyframes messageReveal {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            scale(0.94);
+
+        filter:
+            blur(12px);
+
+    }
+
+    60% {
+
+        opacity: 1;
+
+        filter:
+            blur(1px);
+
+    }
+
+    100% {
+
+        opacity: 1;
+
+        transform:
+            scale(1);
+
+        filter:
+            blur(0);
+
+    }
+
+}
+
+
+/* ============================================================
+   SCANNING BEAM
+   ============================================================ */
+
+.scan-beam {
+
+    position: absolute;
+
+    left: 5%;
+
+    right: 5%;
+
+    height: 2px;
 
     background:
         linear-gradient(
             90deg,
             transparent,
-            rgba(170,130,230,0.50),
-            rgba(220,200,250,0.35),
-            rgba(170,130,230,0.50),
+            rgba(220,205,255,0.85),
             transparent
-        ) !important;
+        );
 
     box-shadow:
-        0 0 15px
-        rgba(130,80,200,0.30);
+
+        0 0 10px
+        rgba(200,175,255,0.9),
+
+        0 0 35px
+        rgba(140,90,230,0.7);
+
+    opacity: 0.75;
+
+    animation:
+        scanning 4s linear infinite;
+
+}
+
+
+@keyframes scanning {
+
+    0% {
+
+        top: 15%;
+
+        opacity: 0;
+
+    }
+
+    10% {
+
+        opacity: 1;
+
+    }
+
+    90% {
+
+        opacity: 1;
+
+    }
+
+    100% {
+
+        top: 85%;
+
+        opacity: 0;
+
+    }
+
+}
+
+
+/* ============================================================
+   MIRROR FRAME
+   ============================================================ */
+
+.magic-mirror-frame {
+
+    position: absolute;
+
+    inset: 14px;
+
+    border:
+        1px solid
+        rgba(200,180,235,0.14);
+
+    border-radius: 13px;
+
+    pointer-events: none;
+
+}
+
+
+.magic-mirror-frame::before,
+.magic-mirror-frame::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 45px;
+
+    height: 45px;
+
+    border-color:
+        rgba(210,190,245,0.45);
+
+}
+
+
+.magic-mirror-frame::before {
+
+    top: -1px;
+
+    left: -1px;
+
+    border-top: 2px solid;
+
+    border-left: 2px solid;
+
+}
+
+
+.magic-mirror-frame::after {
+
+    bottom: -1px;
+
+    right: -1px;
+
+    border-bottom: 2px solid;
+
+    border-right: 2px solid;
+
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    .magic-mirror {
+
+        height: 500px;
+
+    }
+
+    .mirror-content {
+
+        padding: 35px;
+
+    }
 
 }
 
@@ -758,18 +1219,18 @@ unsafe_allow_html=True
 
 
 # ============================================================
-# TÍTULO
+# TITLE
 # ============================================================
 
 st.title("ESPEJO MÁGICO")
 
 st.caption(
-    "RECONOCIMIENTO ÓPTICO · TRADUCCIÓN · SÍNTESIS DE VOZ"
+    "DESCIFRA MENSAJES OCULTOS EN CUALQUIER IDIOMA"
 )
 
 
 # ============================================================
-# INSTRUCCIONES
+# INSTRUCTIONS
 # ============================================================
 
 st.subheader("Instrucciones")
@@ -778,23 +1239,20 @@ st.info(
     """
     **1. Elige cámara o imagen.**
 
-    **2. Introduce una imagen con texto.**
+    **2. Introduce el mensaje.**
 
     **3. Selecciona los idiomas en el panel lateral.**
 
     **4. Pulsa "DECIFRAR Y TRADUCIR".**
-
-    **5. Lee o escucha el resultado.**
     """
 )
 
 
 # ============================================================
-# FUENTE DE IMAGEN
+# IMAGE SOURCE
 # ============================================================
 
 st.subheader("Fuente de imagen")
-
 
 camera_col, upload_col = st.columns(2)
 
@@ -806,7 +1264,7 @@ with camera_col:
         st.markdown("### CÁMARA")
 
         st.write(
-            "Fotografía el texto directamente."
+            "Fotografía el mensaje."
         )
 
         use_camera = st.checkbox(
@@ -832,7 +1290,7 @@ with upload_col:
         st.markdown("### IMAGEN")
 
         st.write(
-            "Carga una imagen desde tu equipo."
+            "Carga una imagen."
         )
 
         bg_image = st.file_uploader(
@@ -847,7 +1305,7 @@ with upload_col:
 
 
 # ============================================================
-# PROCESAMIENTO
+# CAMERA PROCESSING OPTION
 # ============================================================
 
 with st.sidebar:
@@ -918,35 +1376,124 @@ elif img_file_buffer is not None:
 
 
 # ============================================================
-# ESPEJO
+# PARTICLES
+# ============================================================
+
+particles = ""
+
+particle_data = [
+
+    (7, 14, 18, -5, 35),
+    (13, 21, 23, -11, -40),
+    (19, 9, 17, -4, 55),
+    (25, 31, 26, -16, -30),
+    (31, 17, 20, -7, 45),
+    (37, 42, 28, -20, -55),
+    (43, 12, 19, -3, 30),
+    (49, 28, 24, -14, -45),
+    (55, 51, 31, -18, 60),
+    (61, 19, 21, -8, -35),
+    (67, 37, 27, -15, 50),
+    (73, 11, 22, -6, -60),
+    (79, 45, 29, -19, 40),
+    (85, 26, 18, -5, -30),
+    (91, 57, 25, -13, 55),
+    (16, 63, 30, -22, -45),
+    (34, 72, 21, -9, 35),
+    (52, 67, 27, -17, -50),
+    (70, 76, 23, -12, 45),
+    (88, 69, 32, -24, -35)
+
+]
+
+
+for left, bottom, duration, delay, drift in particle_data:
+
+    particles += f"""
+    <span
+        class="magic-particle"
+        style="
+            left:{left}%;
+            bottom:{bottom}%;
+            --duration:{duration}s;
+            --delay:{delay}s;
+            --drift:{drift}px;
+        ">
+    </span>
+    """
+
+
+# ============================================================
+# MIRROR STATE
+# ============================================================
+
+if text.strip():
+
+    mirror_label = "MENSAJE DETECTADO"
+
+    mirror_message = text.strip()
+
+    mirror_class = "mirror-message deciphered"
+
+else:
+
+    mirror_label = "ESPERANDO MENSAJE"
+
+    mirror_message = (
+        "Introduce una imagen para que el espejo "
+        "pueda descifrarla."
+    )
+
+    mirror_class = "mirror-message"
+
+
+# ============================================================
+# MAGIC MIRROR
 # ============================================================
 
 st.subheader("Espejo")
 
+st.markdown(
+f"""
+<div class="magic-mirror">
 
-if text.strip():
+    <div class="magic-mirror-frame"></div>
 
-    st.success(
-        "Texto identificado."
-    )
+    <div class="mirror-light"></div>
 
-    st.code(
-        text.strip(),
-        language=None
-    )
+    <div class="magic-particles">
 
-else:
+        {particles}
 
-    st.write(
-        "El espejo está esperando una imagen."
-    )
+    </div>
+
+    <div class="scan-beam"></div>
+
+    <div class="mirror-content">
+
+        <div class="mirror-label">
+            {mirror_label}
+        </div>
+
+        <div class="{mirror_class}">
+            {mirror_message}
+        </div>
+
+    </div>
+
+</div>
+""",
+unsafe_allow_html=True
+)
 
 
 # ============================================================
-# INFORMACIÓN DEL OCR
+# OCR INFORMATION
 # ============================================================
 
 if text.strip():
+
+    st.markdown("### Información")
 
     col1, col2, col3 = st.columns(3)
 
@@ -973,13 +1520,8 @@ if text.strip():
 
 
 # ============================================================
-# TRADUCCIÓN
+# TRANSLATION SETTINGS
 # ============================================================
-
-st.markdown("---")
-
-st.subheader("Traducción")
-
 
 with st.sidebar:
 
@@ -991,12 +1533,19 @@ with st.sidebar:
     languages = {
 
         "Inglés": "en",
+
         "Español": "es",
+
         "Bengalí": "bn",
+
         "Coreano": "ko",
+
         "Mandarín": "zh-cn",
+
         "Japonés": "ja",
+
         "Ruso": "ru",
+
         "Alemán": "de"
 
     }
@@ -1021,12 +1570,19 @@ with st.sidebar:
     accents = {
 
         "Predeterminado": "com",
+
         "India": "co.in",
+
         "Reino Unido": "co.uk",
+
         "Estados Unidos": "com",
+
         "Canadá": "ca",
+
         "Australia": "com.au",
+
         "Irlanda": "ie",
+
         "Sudáfrica": "co.za"
 
     }
@@ -1041,8 +1597,10 @@ with st.sidebar:
 
 
 # ============================================================
-# BOTÓN
+# TRANSLATE
 # ============================================================
+
+st.markdown("---")
 
 translate = st.button(
     "DECIFRAR Y TRADUCIR",
@@ -1051,7 +1609,7 @@ translate = st.button(
 
 
 # ============================================================
-# RESULTADO
+# TRANSLATION RESULT
 # ============================================================
 
 if translate:
@@ -1074,16 +1632,19 @@ if translate:
             )
 
 
+            # =================================================
+            # DECIPHERED MESSAGE
+            # =================================================
+
             st.subheader(
                 "Mensaje descifrado"
             )
 
 
-            # Revelación progresiva
-
             output_placeholder = st.empty()
 
             current_text = ""
+
 
             for character in output_text:
 
@@ -1097,7 +1658,7 @@ if translate:
 
 
             st.success(
-                "Traducción completada."
+                "Mensaje descifrado y traducido."
             )
 
 
