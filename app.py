@@ -23,14 +23,73 @@ st.set_page_config(
 os.makedirs("temp", exist_ok=True)
 
 # ============================================================
-# ESTILOS VISUALES
+# LÍNEA BASE VISUAL: GRADIENTES VELVET, FLUIDOS Y REFLEJO
 # ============================================================
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #06030b !important;
+    color: #eee7dc !important;
+    font-family: Georgia, serif !important;
+    overflow-x: hidden;
+}
+
+[data-testid="stHeader"] { background: transparent !important; }
+
+/* 1. Fondo de gradiente animado terciopelo y amatista */
 .stApp {
-    background: radial-gradient(circle at 50% 20%, #150a26 0%, #080312 60%, #030107 100%);
-    color: #eee7dc;
-    font-family: Georgia, serif;
+    background: linear-gradient(135deg, #06030b 0%, #130724 30%, #200a35 60%, #08030f 100%) !important;
+    background-size: 300% 300% !important;
+    animation: velvetGradient 20s ease infinite alternate !important;
+}
+
+@keyframes velvetGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 2. Fluidos orgánicos púrpuras y ciruela */
+.fluid-velvet-1 {
+    position: fixed;
+    top: 15%;
+    left: -120px;
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, rgba(192, 132, 252, 0.14) 0%, rgba(95, 60, 150, 0.04) 60%, transparent 75%);
+    border-radius: 40% 60% 70% 30% / 50% 60% 40% 50%;
+    filter: blur(85px);
+    animation: velvetDrift1 22s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.fluid-velvet-2 {
+    position: fixed;
+    bottom: 5%;
+    right: -100px;
+    width: 560px;
+    height: 560px;
+    background: radial-gradient(circle, rgba(147, 51, 234, 0.12) 0%, rgba(192, 132, 252, 0.03) 60%, transparent 75%);
+    border-radius: 60% 40% 50% 50% / 40% 50% 60% 50%;
+    filter: blur(90px);
+    animation: velvetDrift2 25s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes velvetDrift1 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(120px, 70px) scale(1.15); }
+    100% { transform: translate(40px, 140px) scale(0.95); }
+}
+
+@keyframes velvetDrift2 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-100px, -70px) scale(1.2); }
+    100% { transform: translate(-30px, -120px) scale(0.9); }
 }
 
 .brand-signature {
@@ -49,7 +108,7 @@ h1 {
     font-weight: 500 !important;
     letter-spacing: 0.12em;
     color: #eee7dc !important;
-    text-shadow: 0 0 10px rgba(230,215,255,0.4);
+    text-shadow: 0 0 15px rgba(230,215,255,0.45);
 }
 
 .stButton > button {
@@ -71,6 +130,9 @@ h1 {
     border-color: rgba(230,210,250,0.90);
 }
 </style>
+
+<div class="fluid-velvet-1"></div>
+<div class="fluid-velvet-2"></div>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="brand-signature">Krov Industries · Reconocimiento Óptico y Mágico</div>', unsafe_allow_html=True)
@@ -119,7 +181,7 @@ with st.sidebar:
     accent = st.selectbox("Acento de audio:", list(accents.keys()), index=0)
 
 # ------------------------------------------------------------
-# PROCESAMIENTO OCR ROBUSTO
+# PIPELINE OCR MEJORADO CON CLAHE Y FILTRADO BILATERAL
 # ------------------------------------------------------------
 extracted_text = ""
 
@@ -128,12 +190,24 @@ if active_image_bytes:
     if img_cv is not None:
         if invert_filter == "Sí":
             img_cv = cv2.bitwise_not(img_cv)
+        
+        # 1. Escala de grises
         gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+        
+        # 2. Filtrado bilateral para preservar bordes eliminando ruido
+        denoised = cv2.bilateralFilter(gray, 9, 75, 75)
+        
+        # 3. Ecualización adaptativa de contraste (CLAHE)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        enhanced = clahe.apply(denoised)
+        
         try:
-            extracted_text = pytesseract.image_to_string(gray).strip()
+            extracted_text = pytesseract.image_to_string(enhanced, config='--psm 3').strip()
+            if not extracted_text:
+                extracted_text = pytesseract.image_to_string(enhanced, config='--psm 6').strip()
         except Exception:
             try:
-                extracted_text = pytesseract.image_to_string(img_cv).strip()
+                extracted_text = pytesseract.image_to_string(gray).strip()
             except Exception:
                 extracted_text = ""
 
@@ -164,7 +238,7 @@ html, body {{
     overflow: hidden; border-radius: 16px;
     background: radial-gradient(ellipse at 50% 50%, rgba(95,60,150,0.35), rgba(12,8,22,0.98) 70%);
     border: 1px solid rgba(195,170,235,0.45);
-    box-shadow: 0 0 20px rgba(145,95,225,0.35), inset 0 0 90px rgba(100,65,160,0.3);
+    box-shadow: 0 0 25px rgba(145,95,225,0.35), inset 0 0 90px rgba(100,65,160,0.3);
     transition: transform 0.15s ease-out;
 }}
 .bloom {{
@@ -187,7 +261,7 @@ html, body {{
 }}
 .particles {{ position: absolute; inset: 0; overflow: hidden; pointer-events: none; }}
 .particle {{
-    position: absolute; width: 2px; height: 2px; border-radius: 50%;
+    position: absolute; width: 2.5px; height: 2.5px; border-radius: 50%;
     background: rgba(225,215,255,0.85); box-shadow: 0 0 6px rgba(190,160,255,0.8);
     animation: floatUp 8s ease-in-out infinite;
 }}
@@ -225,7 +299,7 @@ html, body {{
 </div>
 <script>
 const pBox = document.getElementById('particle-box');
-for(let i=0; i<45; i++) {{
+for(let i=0; i<65; i++) {{
     const p = document.createElement('div');
     p.className = 'particle';
     p.style.left = (Math.random() * 100) + '%';
@@ -251,10 +325,9 @@ m.addEventListener('mouseleave', () => {{
 
 components.html(mirror_component_html, height=480, scrolling=False)
 
-# Si el OCR no detectó nada pero hay imagen, ofrecer campo de verificación
 if active_image_bytes and not persisted_text:
-    st.info("La imagen fue recibida pero el contraste no permitió extraer texto automáticamente. Puedes escribirlo directamente para traducirlo:")
-    persisted_text = st.text_input("Ingresar texto de la imagen manualmente:", value="")
+    st.info("La imagen fue cargada pero el texto no pudo ser extraído automáticamente. Puedes introducirlo manualmente para traducir:")
+    persisted_text = st.text_input("Ingresar texto de la imagen:", value="")
 
 if persisted_text:
     col_m1, col_m2 = st.columns(2)
